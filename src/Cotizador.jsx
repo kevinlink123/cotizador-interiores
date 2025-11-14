@@ -341,11 +341,11 @@ export default function CotizadorInteriores() {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-gray-800 text-sm mb-1">Total de ambientes</p>
-                  <p className="text-3xl text-gray-800 font-bold">{ambientes.length}</p>
+                  <p className="text-3xl text-gray-800 lg:text-start font-bold">{ambientes.length}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-gray-800 text-sm mb-1">Superficie total</p>
-                  <p className="text-3xl text-gray-800 font-bold">
+                  <p className="lg:text-3xl sm:text-lg text-gray-800 font-bold">
                     {ambientes.reduce((total, amb) => total + calcularMetros(amb), 0).toFixed(2)} m²
                   </p>
                 </div>
@@ -353,9 +353,9 @@ export default function CotizadorInteriores() {
             </div>
 
             <div className="bg-white rounded-lg p-6 text-gray-800 mb-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-lg font-medium">Total Aproximado:</span>
-                <span className="text-4xl font-bold text-blue-600">
+              <div className="flex lg:flex-row flex-col justify-between items-center mb-2">
+                <span className="lg:text-lg sm:text-sm font-medium">Total Aproximado:</span>
+                <span className="lg:text-4xl text-2xl font-bold text-blue-600">
                   ${calcularTotal().toLocaleString('es-AR', { 
                     minimumFractionDigits: 2, 
                     maximumFractionDigits: 2 
@@ -368,8 +368,8 @@ export default function CotizadorInteriores() {
               onClick={generarPDF}
               className="w-full bg-white text-blue-600 font-semibold py-4 rounded-lg hover:scale-[103%] active:scale-[96%] transition-all flex items-center justify-center gap-2 shadow-lg"
             >
-              <Download size={24} />
-              Descargar Presupuesto en PDF
+              <Download className='hidden sm:block' size={24} />
+              <span className='px-1 lg:px-0'>Descargar Presupuesto en PDF</span>
             </button>
           </div>
         )}
