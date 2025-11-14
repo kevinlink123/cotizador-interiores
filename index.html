@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cotizador - Desarrollo</title>
+  
+  <!-- Tailwind CSS -->
+  <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <!-- Mock de window.cotizadorData para simular WordPress -->
+  <script>
+    window.cotizadorData = {
+      apiUrl: 'http://localhost:3000/api/',
+      nonce: 'dev-nonce'
+    };
+    
+    // Mock de la API para desarrollo local
+    window.fetch = new Proxy(window.fetch, {
+      apply: function(target, thisArg, argumentsList) {
+        const url = argumentsList[0];
+        
+        // Interceptar llamadas a la API
+        if (url.includes('/api/ambientes')) {
+          return Promise.resolve({
+            json: () => Promise.resolve({
+              living: { nombre: 'Living', precio: 150, color: 'blue' },
+              comedor: { nombre: 'Comedor', precio: 140, color: 'green' },
+              cocina: { nombre: 'Cocina', precio: 200, color: 'orange' },
+              dormitorio: { nombre: 'Dormitorio', precio: 130, color: 'purple' },
+              bano: { nombre: 'Baño', precio: 250, color: 'teal' }
+            })
+          });
+        }
+        
+        if (url.includes('/api/config')) {
+          return Promise.resolve({
+            json: () => Promise.resolve({
+              titulo: 'Jessica Waisman Design - Cotizador de Interiores',
+              subtitulo: 'Este es un presupuesto aproximado. El precio final puede variar según las características específicas del inmueble y requerimientos adicionales'
+            })
+          });
+        }
+        
+        // Llamadas normales
+        return Reflect.apply(target, thisArg, argumentsList);
+      }
+    });
+  </script>
+  
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

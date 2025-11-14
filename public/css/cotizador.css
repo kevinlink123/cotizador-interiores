@@ -1,0 +1,9 @@
+#cotizador-root {
+  width: 100%;
+  min-height: 400px;
+}
+
+/* Fix para asegurar que Tailwind funcione correctamente */
+.cotizador-container * {
+  box-sizing: border-box;
+}
