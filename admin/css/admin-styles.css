@@ -1,51 +1,425 @@
+/* admin/css/admin-styles.css */
+
+/* ========================================
+   ESTILOS GENERALES
+   ======================================== */
+   .cotizador-admin-wrap {
+    margin: 20px 20px 0 0;
+}
+
+.cotizador-admin-wrap h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.cotizador-admin-wrap h1 .dashicons {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+}
+
 .cotizador-admin-container {
-  background: #fff;
-  padding: 20px;
-  margin-top: 20px;
-  border: 1px solid #ccd0d4;
-  box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    margin-top: 20px;
+}
+
+/* ========================================
+   TABS
+   ======================================== */
+.nav-tab-wrapper {
+    margin: 0;
+    border-bottom: 1px solid #ccd0d4;
+    padding: 0 20px;
+    background: #f9f9f9;
 }
 
 .tab-content {
-  display: none;
-  padding: 20px 0;
+    display: none;
+    padding: 20px;
 }
 
 .tab-content.active {
-  display: block;
+    display: block;
 }
 
+/* ========================================
+   AMBIENTES HEADER
+   ======================================== */
+.ambientes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f0f6fc;
+    border-left: 4px solid #2271b1;
+    border-radius: 4px;
+}
+
+.ambientes-header p {
+    margin: 0;
+    color: #1d2327;
+}
+
+#add-ambiente-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 36px;
+}
+
+#add-ambiente-btn .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+/* ========================================
+   TABLA DE AMBIENTES
+   ======================================== */
+.ambientes-table {
+    margin-top: 20px;
+}
+
+.ambientes-table th {
+    font-weight: 600;
+}
+
+.ambientes-table td {
+    vertical-align: middle;
+}
+
+.ambientes-table input[type="text"],
+.ambientes-table input[type="number"],
+.ambientes-table select {
+    width: 100%;
+    max-width: 300px;
+}
+
+.ambientes-table input[type="number"].small-text {
+    max-width: 100px;
+}
+
+.delete-ambiente-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #b32d2e;
+    border-color: #b32d2e;
+}
+
+.delete-ambiente-btn:hover {
+    color: #fff;
+    background: #b32d2e;
+    border-color: #b32d2e;
+}
+
+.delete-ambiente-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.ambientes-count {
+    margin-top: 15px;
+    padding: 10px 15px;
+    background: #f0f0f1;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.ambientes-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 15px;
+    background: #fff8e5;
+    border-left: 4px solid #dba617;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.ambientes-notice .dashicons {
+    color: #dba617;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   MODAL
+   ======================================== */
+.cotizador-modal {
+    position: fixed;
+    z-index: 100000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.cotizador-modal-content {
+    position: relative;
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 0;
+    border: 1px solid #ccd0d4;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border-radius: 4px;
+    animation: slideDown 0.3s;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.cotizador-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #dcdcde;
+    background: #f9f9f9;
+}
+
+.cotizador-modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.cotizador-modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    font-weight: bold;
+    color: #50575e;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.cotizador-modal-close:hover {
+    color: #000;
+}
+
+.cotizador-modal-body {
+    padding: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.cotizador-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 20px;
+    border-top: 1px solid #dcdcde;
+    background: #f9f9f9;
+}
+
+/* ========================================
+   FORM TABLE EN MODAL
+   ======================================== */
+.cotizador-modal .form-table {
+    margin: 0;
+}
+
+.cotizador-modal .form-table th {
+    width: 35%;
+    padding: 15px 10px 15px 0;
+}
+
+.cotizador-modal .form-table td {
+    padding: 15px 0;
+}
+
+.cotizador-modal .form-table input[type="text"],
+.cotizador-modal .form-table input[type="number"],
+.cotizador-modal .form-table select {
+    width: 100%;
+}
+
+.cotizador-modal .form-table .description {
+    margin-top: 5px;
+    display: block;
+}
+
+/* ========================================
+   SHORTCODE BOX
+   ======================================== */
 .shortcode-box {
-  background: #f5f5f5;
-  padding: 15px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 15px 0;
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 15px 0;
+    border: 1px solid #dcdcde;
 }
 
 .shortcode-box code {
-  font-size: 16px;
-  font-weight: bold;
+    font-size: 16px;
+    font-weight: bold;
+    color: #2271b1;
+    background: #fff;
+    padding: 8px 12px;
+    border-radius: 3px;
+    border: 1px solid #dcdcde;
 }
 
 .copy-shortcode {
-  margin-left: 10px;
+    margin-left: 10px;
+    flex-shrink: 0;
 }
 
 .postbox {
-  margin-top: 20px;
+    margin-top: 20px;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
 }
 
 .postbox .inside {
-  padding: 20px;
+    padding: 20px;
 }
 
 .postbox h3 {
-  margin-top: 0;
+    margin-top: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.postbox h4 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .postbox ol {
-  margin-left: 20px;
+    margin-left: 20px;
+    line-height: 1.8;
+}
+
+.postbox ol li {
+    margin-bottom: 8px;
+}
+
+/* ========================================
+   NOTICES PERSONALIZADOS
+   ======================================== */
+.notice.is-dismissible {
+    position: relative;
+    padding-right: 38px;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media screen and (max-width: 782px) {
+    .ambientes-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    #add-ambiente-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .cotizador-modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .ambientes-table td,
+    .ambientes-table th {
+        padding: 8px;
+    }
+    
+    .delete-ambiente-btn span {
+        display: none;
+    }
+    
+    .delete-ambiente-btn {
+        padding: 6px 10px;
+    }
+}
+
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+.ambientes-table tr {
+    transition: background-color 0.2s;
+}
+
+.ambientes-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   VALIDACIÓN DE FORMULARIOS
+   ======================================== */
+input:invalid {
+    border-color: #d63638;
+}
+
+input:invalid:focus {
+    box-shadow: 0 0 0 1px #d63638;
+}
+
+/* ========================================
+   ESTADOS DE BOTONES
+   ======================================== */
+.button.loading {
+    position: relative;
+    color: transparent;
+}
+
+.button.loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }

@@ -1,4 +1,5 @@
 <?php
+// admin/class-cotizador-admin.php
 if (!defined('ABSPATH')) exit;
 
 class Cotizador_Admin {
@@ -42,16 +43,35 @@ class Cotizador_Admin {
         
         wp_localize_script('cotizador-admin-js', 'cotizadorAdmin', array(
             'apiUrl' => rest_url('cotizador/v1/'),
-            'nonce' => wp_create_nonce('wp_rest')
+            'nonce' => wp_create_nonce('wp_rest'),
+            'confirmDelete' => __('¿Estás seguro de que deseas eliminar este ambiente? Esta acción no se puede deshacer.', 'cotizador-interiores'),
+            'confirmDeleteUsed' => __('⚠️ Este ambiente podría estar en uso. ¿Deseas eliminarlo de todas formas?', 'cotizador-interiores')
         ));
     }
     
     public function render_admin_page() {
         $ambientes = get_option('cotizador_ambientes');
         $config = get_option('cotizador_config');
+        
+        // Colores disponibles para selección
+        $colores_disponibles = array(
+            'blue' => 'Azul',
+            'green' => 'Verde',
+            'orange' => 'Naranja',
+            'purple' => 'Púrpura',
+            'teal' => 'Turquesa',
+            'red' => 'Rojo',
+            'pink' => 'Rosa',
+            'yellow' => 'Amarillo',
+            'indigo' => 'Índigo',
+            'cyan' => 'Cian'
+        );
         ?>
-        <div class="wrap">
-            <h1>Configuración del Cotizador</h1>
+        <div class="wrap cotizador-admin-wrap">
+            <h1>
+                <span class="dashicons dashicons-calculator"></span>
+                Configuración del Cotizador
+            </h1>
             
             <div class="cotizador-admin-container">
                 <!-- Tabs -->
@@ -75,6 +95,7 @@ class Cotizador_Admin {
                                            name="titulo" 
                                            value="<?php echo esc_attr($config['titulo']); ?>" 
                                            class="regular-text">
+                                    <p class="description">El título que aparecerá en el cotizador</p>
                                 </td>
                             </tr>
                             <tr>
@@ -86,6 +107,7 @@ class Cotizador_Admin {
                                               name="subtitulo" 
                                               rows="3" 
                                               class="large-text"><?php echo esc_textarea($config['subtitulo']); ?></textarea>
+                                    <p class="description">Mensaje o disclaimer que aparece debajo del título</p>
                                 </td>
                             </tr>
                         </table>
@@ -96,53 +118,165 @@ class Cotizador_Admin {
                 
                 <!-- Tab: Ambientes -->
                 <div id="ambientes" class="tab-content">
-                    <p>Configura los tipos de ambientes disponibles y sus precios por m²</p>
+                    <div class="ambientes-header">
+                        <p>Configura los tipos de ambientes disponibles y sus precios por m²</p>
+                        <button type="button" class="button button-primary" id="add-ambiente-btn">
+                            <span class="dashicons dashicons-plus-alt"></span>
+                            Agregar Nuevo Ambiente
+                        </button>
+                    </div>
+                    
+                    <!-- Modal para agregar ambiente -->
+                    <div id="add-ambiente-modal" class="cotizador-modal" style="display: none;">
+                        <div class="cotizador-modal-content">
+                            <div class="cotizador-modal-header">
+                                <h2>Agregar Nuevo Ambiente</h2>
+                                <button type="button" class="cotizador-modal-close">&times;</button>
+                            </div>
+                            <div class="cotizador-modal-body">
+                                <form id="add-ambiente-form">
+                                    <table class="form-table">
+                                        <tr>
+                                            <th scope="row">
+                                                <label for="new-ambiente-key">ID del Ambiente *</label>
+                                            </th>
+                                            <td>
+                                                <input type="text" 
+                                                       id="new-ambiente-key" 
+                                                       name="key" 
+                                                       class="regular-text"
+                                                       placeholder="ej: oficina"
+                                                       required>
+                                                <p class="description">
+                                                    Solo letras minúsculas, números y guiones bajos. Sin espacios.
+                                                    <br>Ejemplo: oficina, sala_estar, cocina_comedor
+                                                </p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <label for="new-ambiente-nombre">Nombre *</label>
+                                            </th>
+                                            <td>
+                                                <input type="text" 
+                                                       id="new-ambiente-nombre" 
+                                                       name="nombre" 
+                                                       class="regular-text"
+                                                       placeholder="ej: Oficina"
+                                                       required>
+                                                <p class="description">Nombre que verán los usuarios</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <label for="new-ambiente-precio">Precio por m² *</label>
+                                            </th>
+                                            <td>
+                                                <input type="number" 
+                                                       id="new-ambiente-precio" 
+                                                       name="precio" 
+                                                       class="regular-text"
+                                                       step="0.01"
+                                                       min="0"
+                                                       placeholder="ej: 150"
+                                                       required>
+                                                <span class="description">ARS</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <label for="new-ambiente-color">Color *</label>
+                                            </th>
+                                            <td>
+                                                <select id="new-ambiente-color" name="color" required>
+                                                    <?php foreach ($colores_disponibles as $value => $label): ?>
+                                                        <option value="<?php echo esc_attr($value); ?>">
+                                                            <?php echo esc_html($label); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <p class="description">Color del botón en el cotizador</p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div>
+                            <div class="cotizador-modal-footer">
+                                <button type="button" class="button" id="cancel-add-ambiente">Cancelar</button>
+                                <button type="button" class="button button-primary" id="save-new-ambiente">
+                                    Agregar Ambiente
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     
                     <form id="ambientes-form" method="post">
-                        <table class="wp-list-table widefat fixed striped">
+                        <div class="ambientes-notice">
+                            <span class="dashicons dashicons-info"></span>
+                            Los cambios se guardan automáticamente al hacer clic en "Guardar Ambientes"
+                        </div>
+                        
+                        <table class="wp-list-table widefat fixed striped ambientes-table">
                             <thead>
                                 <tr>
-                                    <th>Tipo</th>
-                                    <th>Nombre</th>
-                                    <th>Precio por m²</th>
-                                    <th>Color</th>
+                                    <th style="width: 15%;">ID</th>
+                                    <th style="width: 25%;">Nombre</th>
+                                    <th style="width: 20%;">Precio por m²</th>
+                                    <th style="width: 20%;">Color</th>
+                                    <th style="width: 20%;">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="ambientes-list">
                                 <?php foreach ($ambientes as $key => $ambiente): ?>
-                                <tr>
-                                    <td><strong><?php echo esc_html($key); ?></strong></td>
+                                <tr data-ambiente-key="<?php echo esc_attr($key); ?>">
+                                    <td>
+                                        <strong><?php echo esc_html($key); ?></strong>
+                                    </td>
                                     <td>
                                         <input type="text" 
-                                               name="ambientes[<?php echo $key; ?>][nombre]" 
+                                               name="ambientes[<?php echo esc_attr($key); ?>][nombre]" 
                                                value="<?php echo esc_attr($ambiente['nombre']); ?>" 
-                                               class="regular-text">
+                                               class="regular-text"
+                                               required>
                                     </td>
                                     <td>
                                         <input type="number" 
-                                               name="ambientes[<?php echo $key; ?>][precio]" 
+                                               name="ambientes[<?php echo esc_attr($key); ?>][precio]" 
                                                value="<?php echo esc_attr($ambiente['precio']); ?>" 
                                                step="0.01" 
                                                min="0" 
-                                               class="small-text">
+                                               class="small-text"
+                                               required>
                                         <span class="description">ARS</span>
                                     </td>
                                     <td>
-                                        <select name="ambientes[<?php echo $key; ?>][color]">
-                                            <option value="blue" <?php selected($ambiente['color'], 'blue'); ?>>Azul</option>
-                                            <option value="green" <?php selected($ambiente['color'], 'green'); ?>>Verde</option>
-                                            <option value="orange" <?php selected($ambiente['color'], 'orange'); ?>>Naranja</option>
-                                            <option value="purple" <?php selected($ambiente['color'], 'purple'); ?>>Púrpura</option>
-                                            <option value="teal" <?php selected($ambiente['color'], 'teal'); ?>>Turquesa</option>
-                                            <option value="red" <?php selected($ambiente['color'], 'red'); ?>>Rojo</option>
+                                        <select name="ambientes[<?php echo esc_attr($key); ?>][color]">
+                                            <?php foreach ($colores_disponibles as $value => $label): ?>
+                                                <option value="<?php echo esc_attr($value); ?>" 
+                                                        <?php selected($ambiente['color'], $value); ?>>
+                                                    <?php echo esc_html($label); ?>
+                                                </option>
+                                            <?php endforeach; ?>
                                         </select>
+                                    </td>
+                                    <td>
+                                        <button type="button" 
+                                                class="button button-small delete-ambiente-btn" 
+                                                data-ambiente-key="<?php echo esc_attr($key); ?>">
+                                            <span class="dashicons dashicons-trash"></span>
+                                            Eliminar
+                                        </button>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
                         
-                        <?php submit_button('Guardar Ambientes', 'primary', 'save-ambientes'); ?>
+                        <p class="ambientes-count">
+                            Total de ambientes: <strong><?php echo count($ambientes); ?></strong>
+                        </p>
+                        
+                        <?php submit_button('Guardar Ambientes', 'primary large', 'save-ambientes'); ?>
                     </form>
                 </div>
                 
