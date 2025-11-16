@@ -227,7 +227,7 @@ export default function CotizadorInteriores() {
               <button
                 key={tipo}
                 onClick={() => agregarAmbiente(tipo)}
-                className={`${getColorClasses(coloresAmbientes[tipo])} text-white rounded-lg p-4 flex flex-col items-center gap-2 transition-all transform hover:scale-105 shadow-md`}
+                className={`${getColorClasses(coloresAmbientes[tipo])} text-white rounded-lg p-4 flex flex-col items-center gap-2 transition-all transform hover:scale-105 active:scale-110 shadow-md`}
               >
                 <Plus size={24} />
                 <span className="font-medium">{nombresAmbientes[tipo]}</span>
