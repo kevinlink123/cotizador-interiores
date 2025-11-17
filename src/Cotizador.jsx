@@ -1,3 +1,4 @@
+// src/Cotizador.jsx
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Download } from 'lucide-react';
 import { jsPDF } from 'jspdf';
@@ -36,8 +37,6 @@ export default function CotizadorInteriores() {
         const nombres = {};
         const colores = {};
         
-        console.log(ambientesData);
-
         Object.keys(ambientesData).forEach(key => {
           precios[key] = parseFloat(ambientesData[key].precio);
           nombres[key] = ambientesData[key].nombre;
@@ -134,21 +133,43 @@ export default function CotizadorInteriores() {
     setAmbientes([]);
   };
 
-  const generarPDF = () => {
+  const generarPDF = async () => {
     const doc = new jsPDF();
+    
+    let yPos = 20;
+    let logoYPos = 10;
+    
+    // Cargar y agregar logo si existe
+    if (config.logo_url) {
+      try {
+        // Convertir imagen a base64
+        const logoData = await getImageAsBase64(config.logo_url);
+        
+        // Agregar logo en la esquina superior derecha
+        const logoWidth = 15;
+        const logoHeight = 15;
+        const logoX = 190 - logoWidth; // 10px de margen desde la derecha
+        
+        doc.addImage(logoData, 'PNG', logoX, logoYPos, logoWidth, logoHeight);
+        doc.setFontSize(8);
+        doc.text("Jessica Waisman Design", logoX - 8, logoYPos + logoHeight + 4);
+      } catch (error) {
+        console.error('Error cargando logo:', error);
+      }
+    }
     
     // Título
     doc.setFontSize(20);
-    doc.text('Cotización Diseño de Interiores', 20, 20);
+    doc.text('Cotización Diseño de Interiores', 20, yPos);
     
     doc.setFontSize(10);
-    doc.text('Presupuesto Aproximado', 20, 28);
+    doc.text('Presupuesto Aproximado', 20, yPos + 8);
     
     // Línea separadora
     doc.setLineWidth(0.5);
-    doc.line(20, 32, 190, 32);
+    doc.line(20, yPos + 12, 190, yPos + 12);
     
-    let yPos = 45;
+    yPos = yPos + 25;
     
     // Ambientes
     doc.setFontSize(12);
@@ -159,8 +180,8 @@ export default function CotizadorInteriores() {
       doc.text(`${index + 1}. ${nombresAmbientes[amb.tipo]}`, 20, yPos);
       doc.setFontSize(10);
       doc.text(`Dimensiones: ${amb.ancho || 0}m x ${amb.largo || 0}m = ${metros.toFixed(2)}m²`, 30, yPos + 5);
-      doc.text(`Precio/m²: $${preciosAmbientes[amb.tipo]}`, 30, yPos + 10);
-      doc.text(`Subtotal: $${costo.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 30, yPos + 15);
+      doc.text(`Precio/m²: ${preciosAmbientes[amb.tipo]}`, 30, yPos + 10);
+      doc.text(`Subtotal: ${costo.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 30, yPos + 15);
       
       yPos += 25;
       doc.setFontSize(12);
@@ -180,7 +201,7 @@ export default function CotizadorInteriores() {
     
     doc.setFontSize(14);
     doc.setFont('', 'bold');
-    doc.text(`TOTAL APROXIMADO: $${calcularTotal().toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 20, yPos);
+    doc.text(`TOTAL APROXIMADO: ${calcularTotal().toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 20, yPos);
     
     // Nota al pie
     yPos += 15;
@@ -191,6 +212,37 @@ export default function CotizadorInteriores() {
     
     // Descargar
     doc.save('cotizacion-diseno-interiores.pdf');
+  };
+  
+  // Función auxiliar para convertir imagen a base64
+  const getImageAsBase64 = (url) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        
+        try {
+          const dataURL = canvas.toDataURL('image/png');
+          resolve(dataURL);
+        } catch (e) {
+          reject(e);
+        }
+      };
+      
+      img.onerror = function(ev) {
+        reject(new Error('No se pudo cargar la imagen', ev));
+      };
+      
+      // Intentar cargar la imagen
+      img.src = url;
+    });
   };
 
   if (loading) {
@@ -393,7 +445,8 @@ export default function CotizadorInteriores() {
   );
 }
 
-if (typeof window !== 'undefined' && document.getElementById('cotizador-root')) {
+// Renderizar el componente cuando el DOM esté listo
+if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {
     const root = document.getElementById('cotizador-root');
     if (root && window.React && window.ReactDOM) {

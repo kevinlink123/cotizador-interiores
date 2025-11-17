@@ -26,6 +26,9 @@ class Cotizador_Admin {
             return;
         }
         
+        // Cargar media uploader de WordPress
+        wp_enqueue_media();
+        
         wp_enqueue_style(
             'cotizador-admin-css',
             COTIZADOR_PLUGIN_URL . 'admin/css/admin-styles.css',
@@ -108,6 +111,38 @@ class Cotizador_Admin {
                                               rows="3" 
                                               class="large-text"><?php echo esc_textarea($config['subtitulo']); ?></textarea>
                                     <p class="description">Mensaje o disclaimer que aparece debajo del título</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label for="logo">Logo para PDF</label>
+                                </th>
+                                <td>
+                                    <div class="logo-upload-container">
+                                        <?php 
+                                        $logo_url = isset($config['logo_url']) ? $config['logo_url'] : '';
+                                        if ($logo_url): 
+                                        ?>
+                                            <div class="logo-preview">
+                                                <img src="<?php echo esc_url($logo_url); ?>" alt="Logo" id="logo-preview-img">
+                                                <button type="button" class="button button-small" id="remove-logo">
+                                                    <span class="dashicons dashicons-trash"></span>
+                                                    Eliminar
+                                                </button>
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <button type="button" class="button" id="upload-logo-btn">
+                                            <span class="dashicons dashicons-upload"></span>
+                                            <?php echo $logo_url ? 'Cambiar Logo' : 'Subir Logo'; ?>
+                                        </button>
+                                        <input type="hidden" id="logo-url" name="logo_url" value="<?php echo esc_attr($logo_url); ?>">
+                                        
+                                        <p class="description">
+                                            Logo que aparecerá en la esquina superior derecha del PDF.
+                                            <br>Recomendado: PNG o JPG, máximo 500KB, fondo transparente preferible.
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         </table>

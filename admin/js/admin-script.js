@@ -28,7 +28,8 @@ jQuery(document).ready(function($) {
         
         var data = {
             titulo: $('#titulo').val(),
-            subtitulo: $('#subtitulo').val()
+            subtitulo: $('#subtitulo').val(),
+            logo_url: $('#logo-url').val()
         };
         
         $.ajax({
@@ -48,6 +49,74 @@ jQuery(document).ready(function($) {
                 $button.prop('disabled', false).text(buttonText);
             }
         });
+    });
+    
+    // ========================================
+    // SUBIR LOGO
+    // ========================================
+    var mediaUploader;
+    
+    $('#upload-logo-btn').on('click', function(e) {
+        e.preventDefault();
+        
+        // Si el uploader ya existe, ábrelo
+        if (mediaUploader) {
+            mediaUploader.open();
+            return;
+        }
+        
+        // Crear el media uploader
+        mediaUploader = wp.media({
+            title: 'Seleccionar Logo',
+            button: {
+                text: 'Usar este logo'
+            },
+            multiple: false,
+            library: {
+                type: 'image'
+            }
+        });
+        
+        // Cuando se selecciona una imagen
+        mediaUploader.on('select', function() {
+            var attachment = mediaUploader.state().get('selection').first().toJSON();
+            
+            // Actualizar el campo oculto con la URL
+            $('#logo-url').val(attachment.url);
+            
+            // Mostrar preview
+            if ($('.logo-preview').length) {
+                $('#logo-preview-img').attr('src', attachment.url);
+            } else {
+                var preview = '<div class="logo-preview">' +
+                    '<img src="' + attachment.url + '" alt="Logo" id="logo-preview-img">' +
+                    '<button type="button" class="button button-small" id="remove-logo">' +
+                    '<span class="dashicons dashicons-trash"></span> Eliminar' +
+                    '</button>' +
+                    '</div>';
+                $('.logo-upload-container').prepend(preview);
+            }
+            
+            // Cambiar texto del botón
+            $('#upload-logo-btn').html('<span class="dashicons dashicons-upload"></span> Cambiar Logo');
+            
+            showNotice('Logo seleccionado. No olvides guardar la configuración.', 'info');
+        });
+        
+        // Abrir el uploader
+        mediaUploader.open();
+    });
+    
+    // Eliminar logo
+    $(document).on('click', '#remove-logo', function() {
+        if (confirm('¿Estás seguro de que deseas eliminar el logo?')) {
+            $('#logo-url').val('');
+            $('.logo-preview').fadeOut(300, function() {
+                $(this).remove();
+            });
+            $('#upload-logo-btn').html('<span class="dashicons dashicons-upload"></span> Subir Logo');
+            showNotice('Logo eliminado. No olvides guardar la configuración.', 'info');
+        }
     });
     
     // ========================================

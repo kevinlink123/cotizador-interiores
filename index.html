@@ -5,22 +5,110 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cotizador - Desarrollo</title>
   
-  <!-- Tailwind CSS -->
-  <!-- <script src="https://cdn.tailwindcss.com"></script> -->
-  
   <style>
     body {
       margin: 0;
       padding: 0;
       font-family: system-ui, -apple-system, sans-serif;
     }
+    
+    /* Panel de configuración de desarrollo */
+    .dev-panel {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      border: 2px solid #2271b1;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 9999;
+      max-width: 300px;
+    }
+    
+    .dev-panel h3 {
+      margin: 0 0 10px 0;
+      color: #2271b1;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .dev-panel label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #1d2327;
+    }
+    
+    .dev-panel input[type="file"] {
+      font-size: 12px;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+    
+    .dev-panel button {
+      background: #2271b1;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      width: 100%;
+      margin-top: 5px;
+    }
+    
+    .dev-panel button:hover {
+      background: #135e96;
+    }
+    
+    .dev-panel .logo-preview {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f0f0f1;
+      border-radius: 4px;
+      text-align: center;
+    }
+    
+    .dev-panel .logo-preview img {
+      max-width: 100%;
+      max-height: 80px;
+      object-fit: contain;
+    }
+    
+    .dev-panel .info {
+      font-size: 11px;
+      color: #646970;
+      margin-top: 10px;
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
   <div id="root"></div>
   
+  <!-- Panel de desarrollo para configurar logo -->
+  <div class="dev-panel">
+    <h3>🎨 Dev Tools - Logo</h3>
+    
+    <label for="logo-upload">Subir Logo Local:</label>
+    <input type="file" id="logo-upload" accept="image/*">
+    
+    <button id="clear-logo">Limpiar Logo</button>
+    
+    <div id="logo-preview-container"></div>
+    
+    <div class="info">
+      💡 El logo se guardará temporalmente. Al recargar la página se mantendrá si está en localStorage.
+    </div>
+  </div>
+  
   <!-- Mock de window.cotizadorData para simular WordPress -->
   <script>
+    // Cargar logo desde localStorage si existe
+    const savedLogo = localStorage.getItem('dev_logo_url');
+    
     window.cotizadorData = {
       apiUrl: 'http://localhost:3000/api/',
       nonce: 'dev-nonce'
@@ -48,7 +136,8 @@
           return Promise.resolve({
             json: () => Promise.resolve({
               titulo: 'Jessica Waisman Design - Cotizador de Interiores',
-              subtitulo: 'Este es un presupuesto aproximado. El precio final puede variar según las características específicas del inmueble y requerimientos adicionales'
+              subtitulo: 'Este es un presupuesto aproximado. El precio final puede variar según las características específicas del inmueble y requerimientos adicionales',
+              logo_url: savedLogo || '' // Logo desde localStorage
             })
           });
         }
@@ -57,6 +146,70 @@
         return Reflect.apply(target, thisArg, argumentsList);
       }
     });
+    
+    // ========================================
+    // MANEJO DE LOGO EN DEV PANEL
+    // ========================================
+    document.getElementById('logo-upload').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      // Validar que sea una imagen
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor selecciona un archivo de imagen');
+        return;
+      }
+      
+      // Validar tamaño (máximo 2MB para desarrollo)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('El archivo es muy grande. Máximo 2MB.');
+        return;
+      }
+      
+      // Leer el archivo como Data URL
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const logoUrl = event.target.result;
+        
+        // Guardar en localStorage
+        localStorage.setItem('dev_logo_url', logoUrl);
+        
+        // Mostrar preview
+        showLogoPreview(logoUrl);
+        
+        // Recargar la página para que el cotizador cargue el nuevo logo
+        alert('Logo cargado! La página se recargará para aplicar los cambios.');
+        location.reload();
+      };
+      
+      reader.readAsDataURL(file);
+    });
+    
+    // Botón para limpiar logo
+    document.getElementById('clear-logo').addEventListener('click', function() {
+      localStorage.removeItem('dev_logo_url');
+      document.getElementById('logo-preview-container').innerHTML = '';
+      alert('Logo eliminado! La página se recargará.');
+      location.reload();
+    });
+    
+    // Mostrar preview del logo si existe
+    function showLogoPreview(logoUrl) {
+      const container = document.getElementById('logo-preview-container');
+      container.innerHTML = `
+        <div class="logo-preview">
+          <img src="${logoUrl}" alt="Logo Preview">
+          <div style="font-size: 11px; margin-top: 5px; color: #646970;">
+            ✅ Logo cargado
+          </div>
+        </div>
+      `;
+    }
+    
+    // Mostrar preview al cargar si hay logo guardado
+    if (savedLogo) {
+      showLogoPreview(savedLogo);
+    }
   </script>
   
   <script type="module" src="/src/main.jsx"></script>
