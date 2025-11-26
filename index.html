@@ -118,6 +118,19 @@
     window.fetch = new Proxy(window.fetch, {
       apply: function(target, thisArg, argumentsList) {
         const url = argumentsList[0];
+
+        // Interceptar llamadas a la API
+        if (url.includes('/api/interiorismo')) {
+          return Promise.resolve({
+            json: () => Promise.resolve({
+              living: { nombre: 'Living', precio: 1500, color: 'blue' },
+              comedor: { nombre: 'Comedor', precio: 2400, color: 'green' },
+              cocina: { nombre: 'Cocina', precio: 2500, color: 'orange' },
+              dormitorio: { nombre: 'Dormitorio', precio: 1300, color: 'purple' },
+              bano: { nombre: 'Baño', precio: 2000, color: 'teal' }
+            })
+          });
+        }
         
         // Interceptar llamadas a la API
         if (url.includes('/api/ambientes')) {

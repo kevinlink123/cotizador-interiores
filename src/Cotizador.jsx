@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 
 import Tabs from './Tabs.jsx';
 import RenovacionCompleta from './RenovacionCompleta.jsx';
+import Interiorismo from './Interiorismo.jsx';
 
 export default function CotizadorInteriores() {
   const [config, setConfig] = useState({
@@ -15,6 +16,10 @@ export default function CotizadorInteriores() {
       label: "Renovacion Completa",
       content: <RenovacionCompleta />
     },
+    {
+      label: "Interiorismo + Mobiliario",
+      content: <Interiorismo />
+    }
   ];
 
   return (

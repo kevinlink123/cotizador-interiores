@@ -62,9 +62,41 @@ class Cotizador_Interiores {
                 'color' => 'teal'
             )
         );
+
+        $default_interiorismo = array(
+            'living' => array(
+                'nombre' => 'Living',
+                'precio' => 1500,
+                'color' => 'blue'
+            ),
+            'comedor' => array(
+                'nombre' => 'Comedor',
+                'precio' => 2400,
+                'color' => 'green'
+            ),
+            'cocina' => array(
+                'nombre' => 'Cocina',
+                'precio' => 2500,
+                'color' => 'orange'
+            ),
+            'dormitorio' => array(
+                'nombre' => 'Dormitorio',
+                'precio' => 1300,
+                'color' => 'purple'
+            ),
+            'bano' => array(
+                'nombre' => 'Baño',
+                'precio' => 200,
+                'color' => 'teal'
+            )
+        );
         
         if (!get_option('cotizador_ambientes')) {
             add_option('cotizador_ambientes', $default_ambientes);
+        }
+
+        if (!get_option('cotizador_interiorismo')) {
+            add_option('cotizador_interiorismo', $default_interiorismo);
         }
         
         if (!get_option('cotizador_config')) {

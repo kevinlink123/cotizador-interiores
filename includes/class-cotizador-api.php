@@ -21,11 +21,25 @@ class Cotizador_API {
             'callback' => array($this, 'get_ambientes'),
             'permission_callback' => '__return_true'
         ));
+
+        // Endpoint para obtener interiorismo
+        register_rest_route('cotizador/v1', '/interiorismo', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_interiorismo'),
+            'permission_callback' => '__return_true'
+        ));
         
         // Endpoint para actualizar ambientes (solo admin)
         register_rest_route('cotizador/v1', '/ambientes', array(
             'methods' => 'POST',
             'callback' => array($this, 'update_ambientes'),
+            'permission_callback' => array($this, 'check_admin_permission')
+        ));
+
+        // Endpoint para actualizar interiorismo (solo admin)
+        register_rest_route('cotizador/v1', '/interiorismo', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'update_interiorismo'),
             'permission_callback' => array($this, 'check_admin_permission')
         ));
         
@@ -40,6 +54,16 @@ class Cotizador_API {
     public function get_config($request) {
         $config = get_option('cotizador_config');
         return rest_ensure_response($config);
+    }
+
+    public function get_interiorismo($request) {
+        $ambientes = get_option('cotizador_interiorismo');
+        return rest_ensure_response($ambientes);
+    }
+
+    public function update_interiorismo($request) {
+        $ambientes = get_option('cotizador_interiorismo');
+        return rest_ensure_response($ambientes);
     }
     
     public function get_ambientes($request) {
