@@ -62,8 +62,13 @@ class Cotizador_API {
     }
 
     public function update_interiorismo($request) {
-        $ambientes = get_option('cotizador_interiorismo');
-        return rest_ensure_response($ambientes);
+        $ambientes = $request->get_json_params();
+        update_option('cotizador_interiorismo', $ambientes);
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'message' => 'Ambientes actualizados correctamente'
+        ));
     }
     
     public function get_ambientes($request) {
