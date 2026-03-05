@@ -5,6 +5,7 @@ import { jsPDF } from 'jspdf';
 export default function Interiorismo() {
   const [ambientes, setAmbientes] = useState([]);
   const [nextId, setNextId] = useState(1);
+  const [selectedTier, setSelectedTier] = useState('estandar');
 
   const [preciosAmbientes, setPreciosAmbientes] = useState({});
   const [nombresAmbientes, setNombresAmbientes] = useState({});
@@ -77,6 +78,25 @@ export default function Interiorismo() {
     loadData();
   }, []);
 
+  // Constantes
+  const TIER_MULTIPLIERS = {
+    basico: 0.85,
+    estandar: 1.0,
+    premium: 1.35
+  };
+
+  const TIER_NAMES = {
+    basico: 'Básico',
+    estandar: 'Estándar',
+    premium: 'Premium'
+  };
+
+  const TIER_DESCRIPTIONS = {
+    basico: 'Diseño funcional y económico',
+    estandar: 'Balance perfecto calidad-precio',
+    premium: 'Diseño de lujo personalizado'
+  };
+
   const getColorClasses = (color) => {
     const colorMap = {
       blue: "bg-blue-500 hover:bg-blue-600",
@@ -122,7 +142,8 @@ export default function Interiorismo() {
 
   const calcularCostoAmbiente = (ambiente) => {
     const precioPorAmb = preciosAmbientes[ambiente.tipo] || 0;
-    return precioPorAmb;
+    const multiplicador = TIER_MULTIPLIERS[selectedTier];
+    return precioPorAmb * multiplicador;
   };
 
   const calcularTotal = () => {
@@ -167,6 +188,7 @@ export default function Interiorismo() {
 
     doc.setFontSize(10);
     doc.text("Presupuesto Aproximado", 20, yPos + 8);
+    // doc.text(`Nivel: ${TIER_NAMES[selectedTier]}`, 20, yPos + 13);
 
     // Línea separadora
     doc.setLineWidth(0.5);
@@ -283,170 +305,236 @@ export default function Interiorismo() {
   return (
 		<div className="interiorismo-container max-w-5xl mx-auto">
 			{/* Botones de Ambientes */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          Selecciona los ambientes a renovar
+        </h2>
+        <div className="buttons-container grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          {Object.keys(preciosAmbientes).map((tipo) => (
+            <button
+              key={tipo}
+              onClick={() => agregarAmbiente(tipo)}
+              className={`button ${getColorClasses(coloresAmbientes[tipo])} text-white rounded-lg p-4 flex flex-col items-center gap-2 transition-all transform hover:scale-105 active:scale-110 shadow-md`}
+            >
+              <Plus size={24} />
+              <span className="font-medium">{nombresAmbientes[tipo]}</span>
+              <span className="text-xs opacity-90">${preciosAmbientes[tipo]}/Ambiente</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Selector de Tier */}
+      <div className="mb-6">
+        <h3 className="text-lg font-medium text-gray-700 mb-3">Nivel de terminación</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {Object.keys(TIER_MULTIPLIERS).map((tier) => (
+            <label
+              key={tier}
+              className={`relative flex cursor-pointer rounded-lg border p-4 transition-all ${
+                selectedTier === tier
+                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500'
+                  : 'border-gray-300 bg-white hover:border-blue-300 hover:bg-gray-50'
+              }`}
+            >
+              <input
+                type="radio"
+                name="tier"
+                value={tier}
+                checked={selectedTier === tier}
+                onChange={(e) => setSelectedTier(e.target.value)}
+                className="sr-only"
+              />
+              <div className="flex flex-1 items-center">
+                <div className="flex-shrink-0">
+                  <div
+                    className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${
+                      selectedTier === tier
+                        ? 'border-blue-600 bg-blue-600'
+                        : 'border-gray-300 bg-white'
+                    }`}
+                  >
+                    {selectedTier === tier && (
+                      <div className="h-2 w-2 rounded-full bg-white"></div>
+                    )}
+                  </div>
+                </div>
+                <div className="ml-3 flex-1">
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`block text-sm font-semibold ${
+                        selectedTier === tier ? 'text-blue-900' : 'text-gray-900'
+                      }`}
+                    >
+                      {TIER_NAMES[tier]}
+                    </span>
+                    <span
+                      className={`text-xs font-medium ${
+                        selectedTier === tier ? 'text-blue-700' : 'text-gray-500'
+                      }`}
+                    >
+                      {tier === 'estandar' ? 'Base' : tier === 'basico' ? '-15%' : '+35%'}
+                    </span>
+                  </div>
+                  <span
+                    className={`mt-1 block text-xs ${
+                      selectedTier === tier ? 'text-blue-700' : 'text-gray-500'
+                    }`}
+                  >
+                    {TIER_DESCRIPTIONS[tier]}
+                  </span>
+                </div>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Lista de Ambientes Agregados */}
+      {ambientes.length > 0 && (
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Selecciona los ambientes a renovar
+            Ambientes agregados
           </h2>
-          <div className="buttons-container grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-            {Object.keys(preciosAmbientes).map((tipo) => (
-              <button
-                key={tipo}
-                onClick={() => agregarAmbiente(tipo)}
-                className={`button ${getColorClasses(coloresAmbientes[tipo])} text-white rounded-lg p-4 flex flex-col items-center gap-2 transition-all transform hover:scale-105 active:scale-110 shadow-md`}
+          <div className="space-y-4">
+            {ambientes.map((ambiente, index) => (
+              <div
+                key={ambiente.id}
+                className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
               >
-                <Plus size={24} />
-                <span className="font-medium">{nombresAmbientes[tipo]}</span>
-                <span className="text-xs opacity-90">${preciosAmbientes[tipo]}/Ambiente</span>
-              </button>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <span className="bg-gray-100 text-gray-700 font-semibold rounded-full w-8 h-8 flex items-center justify-center text-sm">
+                      {index + 1}
+                    </span>
+                    <div>
+                      <h3 className="font-semibold text-gray-800">
+                        {nombresAmbientes[ambiente.tipo]}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        ${preciosAmbientes[ambiente.tipo]}/m²
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => eliminarAmbiente(ambiente.id)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Ancho (metros)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      value={ambiente.ancho}
+                      onChange={(e) => actualizarAmbiente(ambiente.id, 'ancho', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="0.0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Largo (metros)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      value={ambiente.largo}
+                      onChange={(e) => actualizarAmbiente(ambiente.id, 'largo', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="0.0"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="flex justify-between items-center text-sm">
+                    {/* <span className="text-gray-600">
+                      Superficie: {calcularMetros(ambiente).toFixed(2)} m²
+                    </span> */}
+                    <span className="font-semibold text-gray-800">
+                      ${calcularCostoAmbiente(ambiente).toLocaleString('es-AR', { 
+                        minimumFractionDigits: 2, 
+                        maximumFractionDigits: 2 
+                      })}
+                    </span>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
+      )}
 
-				{/* Lista de Ambientes Agregados */}
-				{ambientes.length > 0 && (
-					<div className="bg-white rounded-lg shadow-md p-6 mb-8">
-						<h2 className="text-xl font-semibold text-gray-800 mb-4">
-							Ambientes agregados
-						</h2>
-						<div className="space-y-4">
-							{ambientes.map((ambiente, index) => (
-								<div
-									key={ambiente.id}
-									className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-								>
-									<div className="flex items-start justify-between mb-3">
-										<div className="flex items-center gap-3">
-											<span className="bg-gray-100 text-gray-700 font-semibold rounded-full w-8 h-8 flex items-center justify-center text-sm">
-												{index + 1}
-											</span>
-											<div>
-												<h3 className="font-semibold text-gray-800">
-													{nombresAmbientes[ambiente.tipo]}
-												</h3>
-												<p className="text-sm text-gray-500">
-													${preciosAmbientes[ambiente.tipo]}/m²
-												</p>
-											</div>
-										</div>
-										<button
-											onClick={() => eliminarAmbiente(ambiente.id)}
-											className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
-										>
-											<Trash2 size={20} />
-										</button>
-									</div>
+      {/* Resumen y Total */}
+      {ambientes.length > 0 && (
+        <div className="relative bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+          <button
+            onClick={limpiarForm}
+            className="absolute top-0 right-0 p-2 m-4 transition-all text-red-500 bg-gray-50 hover:text-red-700 hover:bg-gray-200 hover:scale-115 rounded-lg"
+          >
+            <Trash2 size={20} />
+          </button>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-2">Resumen del Presupuesto</h2>
+            <p className="text-blue-100 text-sm">
+              * Presupuesto aproximado. El precio final puede variar según características específicas.
+            </p>
+          </div>
 
-									<div className="grid grid-cols-2 gap-4 mb-3">
-										<div>
-											<label className="block text-sm font-medium text-gray-700 mb-1">
-												Ancho (metros)
-											</label>
-											<input
-												type="number"
-												step="0.1"
-												min="0"
-												value={ambiente.ancho}
-												onChange={(e) => actualizarAmbiente(ambiente.id, 'ancho', e.target.value)}
-												className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-												placeholder="0.0"
-											/>
-										</div>
-										<div>
-											<label className="block text-sm font-medium text-gray-700 mb-1">
-												Largo (metros)
-											</label>
-											<input
-												type="number"
-												step="0.1"
-												min="0"
-												value={ambiente.largo}
-												onChange={(e) => actualizarAmbiente(ambiente.id, 'largo', e.target.value)}
-												className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-												placeholder="0.0"
-											/>
-										</div>
-									</div>
+          <div className="bg-white bg-opacity-20 rounded-lg p-4 mb-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-gray-800 text-sm mb-1">Total de ambientes</p>
+                <p className="text-3xl text-gray-800 lg:text-start font-bold">{ambientes.length}</p>
+              </div>
+            </div>
+          </div>
 
-									<div className="bg-gray-50 rounded-lg p-3">
-										<div className="flex justify-between items-center text-sm">
-											{/* <span className="text-gray-600">
-												Superficie: {calcularMetros(ambiente).toFixed(2)} m²
-											</span> */}
-											<span className="font-semibold text-gray-800">
-												${calcularCostoAmbiente(ambiente).toLocaleString('es-AR', { 
-													minimumFractionDigits: 2, 
-													maximumFractionDigits: 2 
-												})}
-											</span>
-										</div>
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
-				)}
+          <div className="bg-white rounded-lg p-6 text-gray-800 mb-6">
+            <div className="flex lg:flex-row flex-col justify-between items-center mb-2">
+              <span className="lg:text-lg sm:text-sm font-medium">Total Aproximado:</span>
+              <span className="lg:text-4xl text-2xl font-bold text-blue-600">
+                ${calcularTotal().toLocaleString('es-AR', { 
+                  minimumFractionDigits: 2, 
+                  maximumFractionDigits: 2 
+                })}
+              </span>
+            </div>
+          </div>
 
-				{/* Resumen y Total */}
-				{ambientes.length > 0 && (
-					<div className="relative bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
-						<button
-							onClick={limpiarForm}
-							className="absolute top-0 right-0 p-2 m-4 transition-all text-red-500 bg-gray-50 hover:text-red-700 hover:bg-gray-200 hover:scale-115 rounded-lg"
-						>
-							<Trash2 size={20} />
-						</button>
-						<div className="mb-6">
-							<h2 className="text-2xl font-bold mb-2">Resumen del Presupuesto</h2>
-							<p className="text-blue-100 text-sm">
-								* Presupuesto aproximado. El precio final puede variar según características específicas.
-							</p>
-						</div>
+          <button
+            onClick={generarPDF}
+            className="w-full bg-white text-blue-600 font-semibold py-4 rounded-lg hover:scale-[103%] active:scale-[96%] transition-all flex items-center justify-center gap-2 shadow-lg"
+          >
+            <Download className='hidden sm:block' size={24} />
+            <span className='px-1 lg:px-0'>Descargar Presupuesto en PDF</span>
+          </button>
+        </div>
+      )}
 
-						<div className="bg-white bg-opacity-20 rounded-lg p-4 mb-6">
-							<div className="flex justify-between items-center">
-								<div>
-									<p className="text-gray-800 text-sm mb-1">Total de ambientes</p>
-									<p className="text-3xl text-gray-800 lg:text-start font-bold">{ambientes.length}</p>
-								</div>
-							</div>
-						</div>
-
-						<div className="bg-white rounded-lg p-6 text-gray-800 mb-6">
-							<div className="flex lg:flex-row flex-col justify-between items-center mb-2">
-								<span className="lg:text-lg sm:text-sm font-medium">Total Aproximado:</span>
-								<span className="lg:text-4xl text-2xl font-bold text-blue-600">
-									${calcularTotal().toLocaleString('es-AR', { 
-										minimumFractionDigits: 2, 
-										maximumFractionDigits: 2 
-									})}
-								</span>
-							</div>
-						</div>
-
-						<button
-							onClick={generarPDF}
-							className="w-full bg-white text-blue-600 font-semibold py-4 rounded-lg hover:scale-[103%] active:scale-[96%] transition-all flex items-center justify-center gap-2 shadow-lg"
-						>
-							<Download className='hidden sm:block' size={24} />
-							<span className='px-1 lg:px-0'>Descargar Presupuesto en PDF</span>
-						</button>
-					</div>
-				)}
-
-				{/* Mensaje inicial */}
-				{ambientes.length === 0 && (
-					<div className="bg-white rounded-lg shadow-md p-12 text-center">
-						<div className="text-gray-400 mb-4">
-							<Plus size={64} className="mx-auto" />
-						</div>
-						<h3 className="text-xl font-semibold text-gray-600 mb-2">
-							Comienza agregando ambientes
-						</h3>
-						<p className="text-gray-500">
-							Selecciona los ambientes que deseas renovar desde los botones de arriba
-						</p>
-					</div>
-				)}
+      {/* Mensaje inicial */}
+      {ambientes.length === 0 && (
+        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+          <div className="text-gray-400 mb-4">
+            <Plus size={64} className="mx-auto" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+            Comienza agregando ambientes
+          </h3>
+          <p className="text-gray-500">
+            Selecciona los ambientes que deseas renovar desde los botones de arriba
+          </p>
+        </div>
+      )}
 		</div>
 	);
 }
