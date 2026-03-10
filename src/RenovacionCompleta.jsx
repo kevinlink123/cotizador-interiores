@@ -6,6 +6,10 @@ export default function RenovacionCompleta() {
   const [ambientes, setAmbientes] = useState([]);
   const [nextId, setNextId] = useState(1);
   const [selectedTier, setSelectedTier] = useState('estandar');
+
+  const [clienteNombre, setClienteNombre] = useState('');
+  const [clienteEmail, setClienteEmail] = useState('');
+  const [clienteTelefono, setClienteTelefono] = useState('');
   
   // Datos cargados desde WordPress
   const [preciosAmbientes, setPreciosAmbientes] = useState({});
@@ -16,6 +20,7 @@ export default function RenovacionCompleta() {
     subtitulo: 'Este es un presupuesto aproximado. El precio final puede variar según las características específicas del inmueble y requerimientos adicionales'
   });
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -153,6 +158,11 @@ export default function RenovacionCompleta() {
   };
 
   const generarPDF = async () => {
+    if (!clienteNombre.trim() || !clienteEmail.trim() || !clienteTelefono.trim()) {
+      alert('Por favor completa tus datos (nombre, email y teléfono) antes de crear el presupuesto orientativo.');
+      return;
+    }
+
     const doc = new jsPDF();
     
     let yPos = 20;
@@ -230,9 +240,48 @@ export default function RenovacionCompleta() {
     doc.text('* Este es un presupuesto aproximado. El precio final puede variar según', 20, yPos);
     doc.text('las características específicas del inmueble y requerimientos adicionales.', 20, yPos + 5);
     
+    // ENVIAR DATOS
+    const ambFormateados = ambientes.map(amb => {
+      return {
+        nombre: amb.tipo.toUpperCase(),
+        metros: calcularMetros(amb),
+        costo: calcularCostoAmbiente(amb)
+      }
+    });
+    console.log(ambFormateados);
+
+    const pdfBase64 = doc.output('datauristring').split(',')[1];
+    const datosParaSheet = {
+      nombre: clienteNombre,
+      email: clienteEmail,
+      telefono: clienteTelefono,
+      tier: selectedTier,
+      ambientes: ambFormateados,
+      total: calcularTotal(),
+      pdfBase64: pdfBase64  // ← El PDF completo
+    };
+
+    setUploading(true);
+    await enviarAGoogleSheets(datosParaSheet);
+    setUploading(false);
+
     // Descargar
-    doc.save('cotizacion-diseno-interiores.pdf');
+    doc.save(`${clienteNombre}-cotizacion-diseno-interiores.pdf`);
   };
+
+  const enviarAGoogleSheets = async (datos) => {
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxtVQSBmQ1h2G2XDNcIIrf0Oor5GsQPxPy3SwpGWAHnnNjOGLlMXxm04gNEou7C6fi-Lw/exec';
+    
+    // Hace una petición HTTP POST a Google Apps Script
+    const response = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',              // Enviar datos
+      mode: 'no-cors',             // Necesario para Google
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(datos)  // Convierte los datos a JSON
+    });
+  }
   
   // Función auxiliar para convertir imagen a base64
   const getImageAsBase64 = (url) => {
@@ -278,6 +327,15 @@ export default function RenovacionCompleta() {
 
   return(
     <div className="max-w-5xl mx-auto">
+        {/* Dropshadow */}
+        { uploading && 
+        <div className='fixed z-10 top-0 left-0 bg-black/50 w-screen h-screen'>
+          <div className="w-full h-full flex flex-col justify-center items-center mx-auto text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-800 mx-auto"></div>
+            <p className="mt-4 font-semibold text-black">Creando el documento....</p>
+          </div>
+        </div>
+        }
         {/* Botones de Ambientes */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -489,6 +547,60 @@ export default function RenovacionCompleta() {
                   })}
                 </span>
               </div>
+            </div>
+
+            {/* Formulario de datos del cliente */}
+            <div className="bg-white rounded-lg p-6 mb-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                Tus datos para el presupuesto
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-900">
+                <div>
+                  <label htmlFor="cliente-nombre" className="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre completo *
+                  </label>
+                  <input
+                    type="text"
+                    id="cliente-nombre"
+                    value={clienteNombre}
+                    onChange={(e) => setClienteNombre(e.target.value)}
+                    placeholder="Ej: Juan Pérez"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="cliente-email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    id="cliente-email"
+                    value={clienteEmail}
+                    onChange={(e) => setClienteEmail(e.target.value)}
+                    placeholder="ejemplo@email.com"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="cliente-telefono" className="block text-sm font-medium text-gray-700 mb-2">
+                    Teléfono *
+                  </label>
+                  <input
+                    type="tel"
+                    id="cliente-telefono"
+                    value={clienteTelefono}
+                    onChange={(e) => setClienteTelefono(e.target.value)}
+                    placeholder="+54 11 1234-5678"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-3">
+                * Campos requeridos para descargar el presupuesto
+              </p>
             </div>
 
             <button
