@@ -5,7 +5,6 @@ import { jsPDF } from 'jspdf';
 export default function RenovacionCompleta() {
   const [ambientes, setAmbientes] = useState([]);
   const [nextId, setNextId] = useState(1);
-  const [selectedTier, setSelectedTier] = useState('estandar');
 
   const [clienteNombre, setClienteNombre] = useState('');
   const [clienteEmail, setClienteEmail] = useState('');
@@ -120,7 +119,8 @@ export default function RenovacionCompleta() {
       id: nextId,
       tipo,
       ancho: '',
-      largo: ''
+      largo: '',
+      tier: 'estandar'
     };
     setAmbientes([...ambientes, nuevoAmbiente]);
     setNextId(nextId + 1);
@@ -145,7 +145,7 @@ export default function RenovacionCompleta() {
   const calcularCostoAmbiente = (ambiente) => {
     const metros = calcularMetros(ambiente);
     const precioPorMetro = preciosAmbientes[ambiente.tipo] || 0;
-    const multiplicador = TIER_MULTIPLIERS[selectedTier];
+    const multiplicador = TIER_MULTIPLIERS[ambiente.tier];
     return metros * precioPorMetro * multiplicador;
   };
 
@@ -193,7 +193,6 @@ export default function RenovacionCompleta() {
     
     doc.setFontSize(10);
     doc.text('Presupuesto Aproximado', 20, yPos + 8);
-    // doc.text(`Nivel: ${TIER_NAMES[selectedTier]}`, 20, yPos + 13);
     
     // Línea separadora
     doc.setLineWidth(0.5);
@@ -210,10 +209,11 @@ export default function RenovacionCompleta() {
       doc.text(`${index + 1}. ${nombresAmbientes[amb.tipo]}`, 20, yPos);
       doc.setFontSize(10);
       doc.text(`Dimensiones: ${amb.ancho || 0}m x ${amb.largo || 0}m = ${metros.toFixed(2)}m²`, 30, yPos + 5);
-      doc.text(`Precio/m²: ${preciosAmbientes[amb.tipo]}`, 30, yPos + 10);
-      doc.text(`Subtotal: ${costo.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 30, yPos + 15);
+      doc.text(`Nivel de Terminacion: ${amb.tier}`, 30, yPos + 10);
+      doc.text(`Precio/m²: ${preciosAmbientes[amb.tipo]}`, 30, yPos + 15);
+      doc.text(`Subtotal: ${costo.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 30, yPos + 20);
       
-      yPos += 25;
+      yPos += 30;
       doc.setFontSize(12);
       
       // Nueva página si es necesario
@@ -245,7 +245,8 @@ export default function RenovacionCompleta() {
       return {
         nombre: amb.tipo.toUpperCase(),
         metros: calcularMetros(amb),
-        costo: calcularCostoAmbiente(amb)
+        costo: calcularCostoAmbiente(amb),
+        tier: amb.tier
       }
     });
     console.log(ambFormateados);
@@ -255,7 +256,6 @@ export default function RenovacionCompleta() {
       nombre: clienteNombre,
       email: clienteEmail,
       telefono: clienteTelefono,
-      tier: selectedTier,
       ambientes: ambFormateados,
       total: calcularTotal(),
       pdfBase64: pdfBase64  // ← El PDF completo
@@ -270,7 +270,7 @@ export default function RenovacionCompleta() {
   };
 
   const enviarAGoogleSheets = async (datos) => {
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxtVQSBmQ1h2G2XDNcIIrf0Oor5GsQPxPy3SwpGWAHnnNjOGLlMXxm04gNEou7C6fi-Lw/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDIlSI4_sE2dpnw3GO9eVO-HlW_coard0dsT3Q9LOB0fvZ4iZBuo3t8MA06cjivGr8dw/exec';
     
     // Hace una petición HTTP POST a Google Apps Script
     const response = await fetch(GOOGLE_SCRIPT_URL, {
@@ -357,70 +357,7 @@ export default function RenovacionCompleta() {
         </div>
 
         {/* Selector de Tier */}
-        <div className="mb-6">
-          <h3 className="text-lg font-medium text-gray-700 mb-3">Nivel de terminación</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {Object.keys(TIER_MULTIPLIERS).map((tier) => (
-              <label
-                key={tier}
-                className={`relative flex cursor-pointer rounded-lg border p-4 transition-all ${
-                  selectedTier === tier
-                    ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500'
-                    : 'border-gray-300 bg-white hover:border-blue-300 hover:bg-gray-50'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="tier"
-                  value={tier}
-                  checked={selectedTier === tier}
-                  onChange={(e) => setSelectedTier(e.target.value)}
-                  className="sr-only"
-                />
-                <div className="flex flex-1 items-center">
-                  <div className="flex-shrink-0">
-                    <div
-                      className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${
-                        selectedTier === tier
-                          ? 'border-blue-600 bg-blue-600'
-                          : 'border-gray-300 bg-white'
-                      }`}
-                    >
-                      {selectedTier === tier && (
-                        <div className="h-2 w-2 rounded-full bg-white"></div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="ml-3 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`block text-sm font-semibold ${
-                          selectedTier === tier ? 'text-blue-900' : 'text-gray-900'
-                        }`}
-                      >
-                        {TIER_NAMES[tier]}
-                      </span>
-                      <span
-                        className={`text-xs font-medium ${
-                          selectedTier === tier ? 'text-blue-700' : 'text-gray-500'
-                        }`}
-                      >
-                        {tier === 'estandar' ? 'Base' : tier === 'basico' ? '-15%' : '+35%'}
-                      </span>
-                    </div>
-                    <span
-                      className={`mt-1 block text-xs ${
-                        selectedTier === tier ? 'text-blue-700' : 'text-gray-500'
-                      }`}
-                    >
-                      {TIER_DESCRIPTIONS[tier]}
-                    </span>
-                  </div>
-                </div>
-              </label>
-            ))}
-          </div>
-        </div>
+        
 
         {/* Lista de Ambientes Agregados */}
         {ambientes.length > 0 && (
@@ -428,7 +365,7 @@ export default function RenovacionCompleta() {
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
               Ambientes agregados
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-10">
               {ambientes.map((ambiente, index) => (
                 <div
                   key={ambiente.id}
@@ -522,6 +459,70 @@ export default function RenovacionCompleta() {
                           maximumFractionDigits: 2 
                         })}
                       </span>
+                    </div>
+                  </div>
+                  <div className="my-6">
+                    <h3 className="text-lg font-medium text-gray-700 mb-3">Nivel de terminación</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {Object.keys(TIER_MULTIPLIERS).map((tier) => (
+                        <label
+                          key={tier}
+                          className={`relative flex cursor-pointer rounded-lg border p-4 transition-all ${
+                            ambiente.tier === tier
+                              ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500'
+                              : 'border-gray-300 bg-white hover:border-blue-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="tier"
+                            value={tier}
+                            checked={ambiente.tier === tier}
+                            onChange={(e) => actualizarAmbiente(ambiente.id, 'tier', e.target.value)}
+                            className="sr-only"
+                          />
+                          <div className="flex flex-1 items-center">
+                            <div className="flex-shrink-0">
+                              <div
+                                className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${
+                                  ambiente.tier === tier
+                                    ? 'border-blue-600 bg-blue-600'
+                                    : 'border-gray-300 bg-white'
+                                }`}
+                              >
+                                {ambiente.tier === tier && (
+                                  <div className="h-2 w-2 rounded-full bg-white"></div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="ml-3 flex-1">
+                              <div className="flex items-center justify-between">
+                                <span
+                                  className={`block text-sm font-semibold ${
+                                    ambiente.tier === tier ? 'text-blue-900' : 'text-gray-900'
+                                  }`}
+                                >
+                                  {TIER_NAMES[tier]}
+                                </span>
+                                <span
+                                  className={`text-xs font-medium ${
+                                    ambiente.tier === tier ? 'text-blue-700' : 'text-gray-500'
+                                  }`}
+                                >
+                                  {tier === 'estandar' ? 'Base' : tier === 'basico' ? '-15%' : '+35%'}
+                                </span>
+                              </div>
+                              <span
+                                className={`mt-1 block text-xs ${
+                                  ambiente.tier === tier ? 'text-blue-700' : 'text-gray-500'
+                                }`}
+                              >
+                                {TIER_DESCRIPTIONS[tier]}
+                              </span>
+                            </div>
+                          </div>
+                        </label>
+                      ))}
                     </div>
                   </div>
                 </div>
