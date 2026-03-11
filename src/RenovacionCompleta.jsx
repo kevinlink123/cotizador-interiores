@@ -462,11 +462,23 @@ export default function RenovacionCompleta() {
                         Ancho (metros)
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode='decimal'
                         step="0.1"
                         min="0"
                         value={ambiente.ancho}
-                        onChange={(e) => actualizarAmbiente(ambiente.id, 'ancho', e.target.value)}
+                        onChange={(e) => {
+                          // 1. Eliminar todo excepto números y punto
+                          const value = e.target.value.replace(/[^\d.]/g, '');
+                          
+                          // 2. Evitar múltiples puntos decimales
+                          const parts = value.split('.');
+                          const sanitized = parts.length > 2 
+                            ? parts[0] + '.' + parts.slice(1).join('') 
+                            : value;
+                          
+                          actualizarAmbiente(ambiente.id, 'ancho', sanitized);
+                        }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="0.0"
                       />
@@ -476,11 +488,23 @@ export default function RenovacionCompleta() {
                         Largo (metros)
                       </label>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode='decimal'
                         step="0.1"
                         min="0"
                         value={ambiente.largo}
-                        onChange={(e) => actualizarAmbiente(ambiente.id, 'largo', e.target.value)}
+                        onChange={(e) => {
+                          // 1. Eliminar todo excepto números y punto
+                          const value = e.target.value.replace(/[^\d.]/g, '');
+                          
+                          // 2. Evitar múltiples puntos decimales
+                          const parts = value.split('.');
+                          const sanitized = parts.length > 2 
+                            ? parts[0] + '.' + parts.slice(1).join('') 
+                            : value;
+                          
+                          actualizarAmbiente(ambiente.id, 'largo', sanitized);
+                        }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="0.0"
                       />
@@ -591,7 +615,10 @@ export default function RenovacionCompleta() {
                     type="tel"
                     id="cliente-telefono"
                     value={clienteTelefono}
-                    onChange={(e) => setClienteTelefono(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^\d\s\-+]/g, '')
+                      setClienteTelefono(value)
+                    }}
                     placeholder="+54 11 1234-5678"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     required
