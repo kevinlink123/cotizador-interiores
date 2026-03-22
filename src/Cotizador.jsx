@@ -23,14 +23,14 @@ export default function CotizadorInteriores() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
-      <div className="max-w-5xl mx-auto">
+    <div className="tx:min-h-screen tx:bg-gradient-to-br tx:from-gray-50 tx:to-gray-100 tx:py-12 tx:px-4">
+      <div className="tx:max-w-5xl tx:mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-3">
+        <div className="tx:text-center tx:mb-12">
+          <h1 className="tx:text-4xl tx:font-bold tx:text-gray-800 tx:mb-3">
             {config.titulo}
           </h1>
-          <p className="text-gray-600 italic">
+          <p className="tx:text-gray-600 tx:italic">
             {config.subtitulo}
           </p>
         </div>

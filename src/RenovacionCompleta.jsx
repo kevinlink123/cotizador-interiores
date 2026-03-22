@@ -104,14 +104,14 @@ export default function RenovacionCompleta() {
   //Funciones auxiliares
   const getColorClasses = (color) => {
     const colorMap = {
-      blue: 'bg-blue-500 hover:bg-blue-600',
-      green: 'bg-green-500 hover:bg-green-600',
-      orange: 'bg-orange-500 hover:bg-orange-600',
-      purple: 'bg-purple-500 hover:bg-purple-600',
-      teal: 'bg-teal-500 hover:bg-teal-600',
-      red: 'bg-red-500 hover:bg-red-600'
+      blue: 'tx:bg-blue-500 tx:hover:bg-blue-600',
+      green: 'tx:bg-green-500 tx:hover:bg-green-600',
+      orange: 'tx:bg-orange-500 tx:hover:bg-orange-600',
+      purple: 'tx:bg-purple-500 tx:hover:bg-purple-600',
+      teal: 'tx:bg-teal-500 tx:hover:bg-teal-600',
+      red: 'tx:bg-red-500 tx:hover:bg-red-600'
     };
-    return colorMap[color] || 'bg-gray-500 hover:bg-gray-600';
+    return colorMap[color] || 'tx:bg-gray-500 tx:hover:bg-gray-600';
   };
 
   const agregarAmbiente = (tipo) => {
@@ -316,86 +316,84 @@ export default function RenovacionCompleta() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando cotizador...</p>
+      <div className="tx:min-h-screen tx:bg-gradient-to-br tx:from-gray-50 tx:to-gray-100 tx:py-12 tx:px-4">
+        <div className="tx:max-w-5xl tx:mx-auto tx:text-center">
+          <div className="tx:animate-spin tx:rounded-full tx:h-12 tx:w-12 tx:border-b-2 tx:border-blue-500 tx:mx-auto"></div>
+          <p className="tx:mt-4 tx:text-gray-600">Cargando cotizador...</p>
         </div>
       </div>
     );
   }
 
   return(
-    <div className="max-w-5xl mx-auto">
+    <div className="tx:max-w-5xl tx:mx-auto">
         {/* Dropshadow */}
         { uploading && 
-        <div className='fixed z-10 top-0 left-0 bg-black/50 w-screen h-screen'>
-          <div className="w-full h-full flex flex-col justify-center items-center mx-auto text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-800 mx-auto"></div>
-            <p className="mt-4 font-semibold text-black">Creando el documento....</p>
+        <div className='tx:fixed tx:z-10 tx:top-0 tx:left-0 tx:bg-black/50 tx:w-screen tx:h-screen'>
+          <div className="tx:w-full tx:h-full tx:flex tx:flex-col tx:justify-center tx:items-center tx:mx-auto tx:text-center">
+            <div className="tx:animate-spin tx:rounded-full tx:h-16 tx:w-16 tx:border-b-2 tx:border-blue-800 tx:mx-auto"></div>
+            <p className="mt-4 tx:font-semibold tx:text-black">Creando el documento....</p>
           </div>
         </div>
         }
         {/* Botones de Ambientes */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+        <div className="tx:bg-white tx:rounded-lg tx:shadow-md tx:p-6 tx:mb-8">
+          <h2 className="tx:text-xl tx:font-semibold tx:text-gray-800 tx:mb-4">
             Selecciona los ambientes a renovar
           </h2>
-          <div className="buttons-container grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className="buttons-container tx:grid tx:grid-cols-2 tx:md:grid-cols-3 tx:lg:grid-cols-5 tx:gap-3">
             {Object.keys(preciosAmbientes).map((tipo) => (
               <button
                 key={tipo}
                 onClick={() => agregarAmbiente(tipo)}
-                className={`button ${getColorClasses(coloresAmbientes[tipo])} text-white rounded-lg p-4 flex flex-col items-center gap-2 transition-all transform hover:scale-105 active:scale-110 shadow-md`}
+                className={`button ${getColorClasses(coloresAmbientes[tipo])} tx:text-white tx:rounded-lg tx:p-4 tx:flex tx:flex-col tx:items-center tx:gap-2 tx:transition-all tx:transform tx:hover:scale-105 tx:active:scale-110 tx:shadow-md`}
               >
                 <Plus size={24} />
-                <span className="font-medium">{nombresAmbientes[tipo]}</span>
-                <span className="text-xs opacity-90">${preciosAmbientes[tipo]}/m²</span>
+                <span className="tx:font-medium">{nombresAmbientes[tipo]}</span>
+                <span className="tx:text-xs tx:opacity-90">${preciosAmbientes[tipo]}/m²</span>
               </button>
             ))}
           </div>
         </div>
-
-        {/* Selector de Tier */}
         
 
         {/* Lista de Ambientes Agregados */}
         {ambientes.length > 0 && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <div className="tx:bg-white tx:rounded-lg tx:shadow-md tx:p-6 tx:mb-8">
+            <h2 className="tx:text-xl tx:font-semibold tx:text-gray-800 tx:mb-4">
               Ambientes agregados
             </h2>
-            <div className="space-y-10">
+            <div className="tx:space-y-10">
               {ambientes.map((ambiente, index) => (
                 <div
                   key={ambiente.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  className="tx:border tx:border-gray-200 tx:rounded-lg tx:p-4 tx:hover:shadow-md tx:transition-shadow"
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="bg-gray-100 text-gray-700 font-semibold rounded-full w-8 h-8 flex items-center justify-center text-sm">
+                  <div className="tx:flex tx:items-start tx:justify-between tx:mb-3">
+                    <div className="tx:flex tx:items-center tx:gap-3">
+                      <span className="tx:bg-gray-100 tx:text-gray-700 tx:font-semibold tx:rounded-full tx:w-8 tx:h-8 tx:flex tx:items-center tx:justify-center tx:text-sm">
                         {index + 1}
                       </span>
                       <div>
-                        <h3 className="font-semibold text-gray-800">
+                        <h3 className="tx:font-semibold tx:text-gray-800">
                           {nombresAmbientes[ambiente.tipo]}
                         </h3>
-                        <p className="text-sm text-gray-500">
+                        <p className="tx:text-sm tx:text-gray-500">
                           ${preciosAmbientes[ambiente.tipo]}/m²
                         </p>
                       </div>
                     </div>
                     <button
                       onClick={() => eliminarAmbiente(ambiente.id)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                      className="tx:text-red-500 tx:hover:text-red-700 tx:hover:bg-red-50 tx:p-2 tx:rounded-lg tx:transition-colors"
                     >
                       <Trash2 size={20} />
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-3">
+                  <div className="tx:grid tx:grid-cols-2 tx:gap-4 tx:mb-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="tx:block tx:text-sm tx:font-medium tx:text-gray-700 tx:mb-1">
                         Ancho (metros)
                       </label>
                       <input
@@ -416,12 +414,12 @@ export default function RenovacionCompleta() {
                           
                           actualizarAmbiente(ambiente.id, 'ancho', sanitized);
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="tx:w-full tx:px-3 tx:py-2 tx:border tx:border-gray-300 tx:rounded-lg tx:focus:ring-2 tx:focus:ring-blue-500 tx:focus:border-transparent"
                         placeholder="0.0"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="tx:block tx:text-sm tx:font-medium tx:text-gray-700 tx:mb-1">
                         Largo (metros)
                       </label>
                       <input
@@ -442,18 +440,18 @@ export default function RenovacionCompleta() {
                           
                           actualizarAmbiente(ambiente.id, 'largo', sanitized);
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="tx:w-full tx:px-3 tx:py-2 tx:border tx:border-gray-300 tx:rounded-lg tx:focus:ring-2 tx:focus:ring-blue-500 tx:focus:border-transparent"
                         placeholder="0.0"
                       />
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">
+                  <div className="tx:bg-gray-50 tx:rounded-lg tx:p-3">
+                    <div className="tx:flex tx:justify-between tx:items-center tx:text-sm">
+                      <span className="tx:text-gray-600">
                         Superficie: {calcularMetros(ambiente).toFixed(2)} m²
                       </span>
-                      <span className="font-semibold text-gray-800">
+                      <span className="tx:font-semibold tx:text-gray-800">
                         ${calcularCostoAmbiente(ambiente).toLocaleString('es-AR', { 
                           minimumFractionDigits: 2, 
                           maximumFractionDigits: 2 
@@ -461,16 +459,16 @@ export default function RenovacionCompleta() {
                       </span>
                     </div>
                   </div>
-                  <div className="my-6">
-                    <h3 className="text-lg font-medium text-gray-700 mb-3">Nivel de terminación</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="tx:my-6">
+                    <h3 className="tx:text-lg font-medium tx:text-gray-700 tx:mb-3">Nivel de terminación</h3>
+                    <div className="tx:grid tx:grid-cols-1 tx:md:grid-cols-3 tx:gap-4">
                       {Object.keys(TIER_MULTIPLIERS).map((tier) => (
                         <label
                           key={tier}
-                          className={`relative flex cursor-pointer rounded-lg border p-4 transition-all ${
+                          className={`tx:relative tx:flex tx:cursor-pointer tx:rounded-lg tx:border tx:p-4 tx:transition-all ${
                             ambiente.tier === tier
-                              ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500'
-                              : 'border-gray-300 bg-white hover:border-blue-300 hover:bg-gray-50'
+                              ? 'tx:border-blue-500 tx:bg-blue-50 tx:ring-2 tx:ring-blue-500'
+                              : 'tx:border-gray-300 tx:bg-white tx:hover:border-blue-300 tx:hover:bg-gray-50'
                           }`}
                         >
                           <input
@@ -479,42 +477,42 @@ export default function RenovacionCompleta() {
                             value={tier}
                             checked={ambiente.tier === tier}
                             onChange={(e) => actualizarAmbiente(ambiente.id, 'tier', e.target.value)}
-                            className="sr-only"
+                            className="tx:sr-only"
                           />
-                          <div className="flex flex-1 items-center">
-                            <div className="flex-shrink-0">
+                          <div className="tx:flex tx:flex-1 tx:items-center">
+                            <div className="tx:flex-shrink-0">
                               <div
-                                className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${
+                                className={`tx:flex tx:h-6 tx:w-6 tx:items-center tx:justify-center tx:rounded-full tx:border-2 ${
                                   ambiente.tier === tier
-                                    ? 'border-blue-600 bg-blue-600'
-                                    : 'border-gray-300 bg-white'
+                                    ? 'tx:border-blue-600 tx:bg-blue-600'
+                                    : 'tx:border-gray-300 tx:bg-white'
                                 }`}
                               >
                                 {ambiente.tier === tier && (
-                                  <div className="h-2 w-2 rounded-full bg-white"></div>
+                                  <div className="tx:h-2 tx:w-2 tx:rounded-full tx:bg-white"></div>
                                 )}
                               </div>
                             </div>
-                            <div className="ml-3 flex-1">
-                              <div className="flex items-center justify-between">
+                            <div className="tx:ml-3 tx:flex-1">
+                              <div className="tx:flex tx:items-center tx:justify-between">
                                 <span
-                                  className={`block text-sm font-semibold ${
-                                    ambiente.tier === tier ? 'text-blue-900' : 'text-gray-900'
+                                  className={`tx:block tx:text-sm tx:font-semibold ${
+                                    ambiente.tier === tier ? 'tx:text-blue-900' : 'tx:text-gray-900'
                                   }`}
                                 >
                                   {TIER_NAMES[tier]}
                                 </span>
                                 <span
-                                  className={`text-xs font-medium ${
-                                    ambiente.tier === tier ? 'text-blue-700' : 'text-gray-500'
+                                  className={`tx:text-xs tx:font-medium ${
+                                    ambiente.tier === tier ? 'tx:text-blue-700' : 'tx:text-gray-500'
                                   }`}
                                 >
                                   {tier === 'estandar' ? 'Base' : tier === 'basico' ? '-15%' : '+35%'}
                                 </span>
                               </div>
                               <span
-                                className={`mt-1 block text-xs ${
-                                  ambiente.tier === tier ? 'text-blue-700' : 'text-gray-500'
+                                className={`tx:mt-1 tx:block tx:text-xs ${
+                                  ambiente.tier === tier ? 'tx:text-blue-700' : 'tx:text-gray-500'
                                 }`}
                               >
                                 {TIER_DESCRIPTIONS[tier]}
@@ -533,39 +531,39 @@ export default function RenovacionCompleta() {
 
         {/* Resumen y Total */}
         {ambientes.length > 0 && (
-          <div className="relative bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+          <div className="tx:relative tx:bg-gradient-to-r tx:from-blue-500 tx:to-purple-600 tx:rounded-lg tx:shadow-lg tx:p-6 tx:text-white">
             <button
               onClick={limpiarForm}
-              className="absolute top-0 right-0 p-2 m-4 transition-all text-red-500 bg-gray-50 hover:text-red-700 hover:bg-gray-200 hover:scale-115 rounded-lg"
+              className="tx:absolute tx:top-0 tx:right-0 tx:p-2 tx:m-4 tx:transition-all tx:text-red-500 tx:bg-gray-50 tx:hover:text-red-700 tx:hover:bg-gray-200 tx:hover:scale-115 tx:rounded-lg"
             >
               <Trash2 size={20} />
             </button>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">Resumen del Presupuesto</h2>
-              <p className="text-blue-100 text-sm">
+            <div className="tx:mb-6">
+              <h2 className="tx:text-2xl tx:font-bold tx:mb-2">Resumen del Presupuesto</h2>
+              <p className="tx:text-blue-100 tx:text-sm">
                 * Presupuesto aproximado. El precio final puede variar según características específicas.
               </p>
             </div>
 
-            <div className="bg-white bg-opacity-20 rounded-lg p-4 mb-6">
-              <div className="flex justify-between items-center">
+            <div className="tx:bg-white tx:bg-opacity-20 tx:rounded-lg tx:p-4 tx:mb-6">
+              <div className="tx:flex tx:justify-between tx:items-center">
                 <div>
-                  <p className="text-gray-800 text-sm mb-1">Total de ambientes</p>
-                  <p className="text-3xl text-gray-800 lg:text-start font-bold">{ambientes.length}</p>
+                  <p className="tx:text-gray-800 tx:text-sm tx:mb-1">Total de ambientes</p>
+                  <p className="tx:text-3xl tx:text-gray-800 tx:lg:text-start tx:font-bold">{ambientes.length}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-gray-800 text-sm mb-1">Superficie total</p>
-                  <p className="lg:text-3xl sm:text-lg text-gray-800 font-bold">
+                <div className="tx:text-right">
+                  <p className="tx:text-gray-800 tx:text-sm tx:mb-1">Superficie total</p>
+                  <p className="tx:lg:text-3xl tx:sm:text-lg tx:text-gray-800 tx:font-bold">
                     {ambientes.reduce((total, amb) => total + calcularMetros(amb), 0).toFixed(2)} m²
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg p-6 text-gray-800 mb-6">
-              <div className="flex lg:flex-row flex-col justify-between items-center mb-2">
-                <span className="lg:text-lg sm:text-sm font-medium">Total Aproximado:</span>
-                <span className="lg:text-4xl text-2xl font-bold text-blue-600">
+            <div className="tx:bg-white tx:rounded-lg tx:p-6 tx:text-gray-800 tx:mb-6">
+              <div className="tx:flex tx:lg:flex-row tx:flex-col tx:justify-between tx:items-center tx:mb-2">
+                <span className="tx:lg:text-lg tx:sm:text-sm tx:font-medium">Total Aproximado:</span>
+                <span className="tx:lg:text-4xl tx:text-2xl tx:font-bold tx:text-blue-600">
                   ${calcularTotal().toLocaleString('es-AR', { 
                     minimumFractionDigits: 2, 
                     maximumFractionDigits: 2 
@@ -575,13 +573,13 @@ export default function RenovacionCompleta() {
             </div>
 
             {/* Formulario de datos del cliente */}
-            <div className="bg-white rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            <div className="tx:bg-white tx:rounded-lg tx:p-6 tx:mb-6">
+              <h3 className="tx:text-lg tx:font-semibold tx:text-gray-800 tx:mb-4">
                 Tus datos para el presupuesto
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-900">
+              <div className="tx:grid tx:grid-cols-1 tx:md:grid-cols-3 tx:gap-4 tx:text-gray-900">
                 <div>
-                  <label htmlFor="cliente-nombre" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="cliente-nombre" className="tx:block tx:text-sm tx:font-medium tx:text-gray-700 tx:mb-2">
                     Nombre completo *
                   </label>
                   <input
@@ -590,12 +588,12 @@ export default function RenovacionCompleta() {
                     value={clienteNombre}
                     onChange={(e) => setClienteNombre(e.target.value)}
                     placeholder="Ej: Juan Pérez"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="tx:w-full tx:px-4 tx:py-3 tx:border tx:border-gray-300 tx:rounded-lg tx:focus:ring-2 tx:focus:ring-blue-500 tx:focus:border-transparent tx:transition-all"
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="cliente-email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="cliente-email" className="tx:block tx:text-sm tx:font-medium tx:text-gray-700 tx:mb-2">
                     Email *
                   </label>
                   <input
@@ -604,12 +602,12 @@ export default function RenovacionCompleta() {
                     value={clienteEmail}
                     onChange={(e) => setClienteEmail(e.target.value)}
                     placeholder="ejemplo@email.com"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="tx:w-full tx:px-4 tx:py-3 tx:border tx:border-gray-300 tx:rounded-lg tx:focus:ring-2 tx:focus:ring-blue-500 tx:focus:border-transparent tx:transition-all"
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="cliente-telefono" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="cliente-telefono" className="tx:block tx:text-sm tx:font-medium tx:text-gray-700 tx:mb-2">
                     Teléfono *
                   </label>
                   <input
@@ -621,36 +619,36 @@ export default function RenovacionCompleta() {
                       setClienteTelefono(value)
                     }}
                     placeholder="+54 11 1234-5678"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="tx:w-full tx:px-4 tx:py-3 tx:border tx:border-gray-300 tx:rounded-lg tx:focus:ring-2 tx:focus:ring-blue-500 tx:focus:border-transparent tx:transition-all"
                     required
                   />
                 </div>
               </div>
-              <p className="text-xs text-gray-500 mt-3">
+              <p className="tx:text-xs tx:text-gray-500 tx:mt-3">
                 * Campos requeridos para descargar el presupuesto
               </p>
             </div>
 
             <button
               onClick={generarPDF}
-              className="w-full bg-white text-blue-600 font-semibold py-4 rounded-lg hover:scale-[103%] active:scale-[96%] transition-all flex items-center justify-center gap-2 shadow-lg"
+              className="tx:w-full tx:bg-white tx:text-blue-600 tx:font-semibold tx:py-4 tx:rounded-lg tx:hover:scale-[103%] tx:active:scale-[96%] tx:transition-all tx:flex tx:items-center tx:justify-center tx:gap-2 tx:shadow-lg"
             >
-              <Download className='hidden sm:block' size={24} />
-              <span className='px-1 lg:px-0'>Descargar Presupuesto en PDF</span>
+              <Download className='tx:hidden tx:sm:block' size={24} />
+              <span className='tx:px-1 tx:lg:px-0'>Descargar Presupuesto en PDF</span>
             </button>
           </div>
         )}
 
         {/* Mensaje inicial */}
         {ambientes.length === 0 && (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <div className="text-gray-400 mb-4">
-              <Plus size={64} className="mx-auto" />
+          <div className="tx:bg-white tx:rounded-lg tx:shadow-md tx:p-12 tx:text-center">
+            <div className="tx:text-gray-400 tx:mb-4">
+              <Plus size={64} className="tx:mx-auto" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">
+            <h3 className="tx:text-xl tx:font-semibold tx:text-gray-600 tx:mb-2">
               Comienza agregando ambientes
             </h3>
-            <p className="text-gray-500">
+            <p className="tx:text-gray-500">
               Selecciona los ambientes que deseas renovar desde los botones de arriba
             </p>
           </div>

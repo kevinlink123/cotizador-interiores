@@ -7,12 +7,12 @@ export default function Tabs({ tabs }) {
   const [activeTab, setActiveTab] = useState(0);
 
   return(
-    <div className="tabs-container mx-auto max-w-5xl">
-      <div className="tabs-header flex">
+    <div className="tabs-container tx:mx-auto tx:max-w-5xl">
+      <div className="tabs-header tx:flex">
         {tabs.map((tab, index) => (
           <button
             key={index}
-            className={`tab-button grow p-4 rounded-sm transition-all ${activeTab === index ? 'bg-white': 'bg-gray-400'}`}
+            className={`tx:tab-button tx:grow tx:p-4 tx:rounded-sm tx:transition-all ${activeTab === index ? 'tx:bg-white': 'tx:bg-gray-400'}`}
             onClick={() => setActiveTab(index)}
           >
             {tab.label}

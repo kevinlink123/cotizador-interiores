@@ -5,7 +5,10 @@ import { jsPDF } from 'jspdf';
 export default function Interiorismo() {
   const [ambientes, setAmbientes] = useState([]);
   const [nextId, setNextId] = useState(1);
-  const [selectedTier, setSelectedTier] = useState('estandar');
+
+  const [clienteNombre, setClienteNombre] = useState('');
+  const [clienteEmail, setClienteEmail] = useState('');
+  const [clienteTelefono, setClienteTelefono] = useState('');
 
   const [preciosAmbientes, setPreciosAmbientes] = useState({});
   const [nombresAmbientes, setNombresAmbientes] = useState({});
@@ -16,6 +19,7 @@ export default function Interiorismo() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -99,14 +103,14 @@ export default function Interiorismo() {
 
   const getColorClasses = (color) => {
     const colorMap = {
-      blue: "bg-blue-500 hover:bg-blue-600",
-      green: "bg-green-500 hover:bg-green-600",
-      orange: "bg-orange-500 hover:bg-orange-600",
-      purple: "bg-purple-500 hover:bg-purple-600",
-      teal: "bg-teal-500 hover:bg-teal-600",
-      red: "bg-red-500 hover:bg-red-600",
+      blue: "tx:bg-blue-500 tx:hover:bg-blue-600",
+      green: "tx:bg-green-500 tx:hover:bg-green-600",
+      orange: "tx:bg-orange-500 tx:hover:bg-orange-600",
+      purple: "tx:bg-purple-500 tx:hover:bg-purple-600",
+      teal: "tx:bg-teal-500 tx:hover:bg-teal-600",
+      red: "tx:bg-red-500 tx:hover:bg-red-600",
     };
-    return colorMap[color] || "bg-gray-500 hover:bg-gray-600";
+    return colorMap[color] || "tx:bg-gray-500 tx:hover:bg-gray-600";
   };
 
   const agregarAmbiente = (tipo) => {
@@ -114,7 +118,8 @@ export default function Interiorismo() {
       id: nextId,
       tipo,
 			ancho: '',
-			largo: ''
+			largo: '',
+      tier: 'estandar'
     };
     setAmbientes([...ambientes, nuevoAmbiente]);
     setNextId(nextId + 1);
@@ -142,7 +147,7 @@ export default function Interiorismo() {
 
   const calcularCostoAmbiente = (ambiente) => {
     const precioPorAmb = preciosAmbientes[ambiente.tipo] || 0;
-    const multiplicador = TIER_MULTIPLIERS[selectedTier];
+    const multiplicador = TIER_MULTIPLIERS[ambiente.tier];
     return precioPorAmb * multiplicador;
   };
 
@@ -154,6 +159,11 @@ export default function Interiorismo() {
   };
 
   const generarPDF = async () => {
+    if (!clienteNombre.trim() || !clienteEmail.trim() || !clienteTelefono.trim()) {
+      alert('Por favor completa tus datos (nombre, email y teléfono) antes de crear el presupuesto orientativo.');
+      return;
+    }
+
     const doc = new jsPDF();
 
     let yPos = 20;
@@ -203,18 +213,19 @@ export default function Interiorismo() {
 			
       doc.text(`${index + 1}. ${nombresAmbientes[amb.tipo]}`, 20, yPos);
       doc.setFontSize(10);
-      doc.text(`Precio: ${preciosAmbientes[amb.tipo]}`, 30, yPos + 5);
+      doc.text(`Nivel de Terminacion: ${amb.tier}`, 30, yPos + 5);
+      doc.text(`Precio: ${preciosAmbientes[amb.tipo]}`, 30, yPos + 10);
       doc.text(
         `Subtotal: ${costo.toLocaleString("es-AR", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })}`,
         30,
-        yPos + 10
+        yPos + 15
       );
-			doc.text(`Detalle ambiente: Ancho ${amb.ancho} mts, largo ${amb.largo} mts`, 30, yPos + 15);
+			doc.text(`Detalle ambiente: Ancho ${amb.ancho} mts, largo ${amb.largo} mts`, 30, yPos + 20);
 
-      yPos += 25;
+      yPos += 30;
       doc.setFontSize(12);
 
       // Nueva página si es necesario
@@ -256,9 +267,48 @@ export default function Interiorismo() {
       yPos + 5
     );
 
+    // ENVIAR DATOS
+    const ambFormateados = ambientes.map(amb => {
+      return {
+        nombre: amb.tipo.toUpperCase(),
+        metros: calcularMetros(amb),
+        costo: calcularCostoAmbiente(amb),
+        tier: amb.tier
+      }
+    });
+    console.log(ambFormateados);
+
+    const pdfBase64 = doc.output('datauristring').split(',')[1];
+    const datosParaSheet = {
+      nombre: clienteNombre,
+      email: clienteEmail,
+      telefono: clienteTelefono,
+      ambientes: ambFormateados,
+      total: calcularTotal(),
+      pdfBase64: pdfBase64  // ← El PDF completo
+    };
+
+    setUploading(true);
+    await enviarAGoogleSheets(datosParaSheet);
+    setUploading(false);
+
     // Descargar
-    doc.save("cotizacion-diseno-interiores.pdf");
+    doc.save(`${clienteNombre}-cotizacion-diseno-interiores.pdf`);
   };
+
+  const enviarAGoogleSheets = async (datos) => {
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDIlSI4_sE2dpnw3GO9eVO-HlW_coard0dsT3Q9LOB0fvZ4iZBuo3t8MA06cjivGr8dw/exec';
+    
+    // Hace una petición HTTP POST a Google Apps Script
+    const response = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',              // Enviar datos
+      mode: 'no-cors',             // Necesario para Google
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(datos)  // Convierte los datos a JSON
+    });
+  }
 
   // Función auxiliar para convertir imagen a base64
   const getImageAsBase64 = (url) => {
@@ -293,179 +343,212 @@ export default function Interiorismo() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando cotizador...</p>
+      <div className="tx:min-h-screen tx:bg-gradient-to-br tx:from-gray-50 tx:to-gray-100 tx:py-12 tx:px-4">
+        <div className="tx:max-w-5xl tx:mx-auto tx:text-center">
+          <div className="tx:animate-spin tx:rounded-full tx:h-12 tx:w-12 tx:border-b-2 tx:border-blue-500 tx:mx-auto"></div>
+          <p className="tx:mt-4 tx:text-gray-600">Cargando cotizador...</p>
         </div>
       </div>
     );
   }
 
   return (
-		<div className="interiorismo-container max-w-5xl mx-auto">
+		<div className="interiorismo-container tx:max-w-5xl tx:mx-auto">
+      {/* Dropshadow */}
+        { uploading && 
+        <div className='tx:fixed tx:z-10 tx:top-0 tx:left-0 tx:bg-black/50 tx:w-screen tx:h-screen'>
+          <div className="tx:w-full tx:h-full tx:flex tx:flex-col tx:justify-center tx:items-center tx:mx-auto tx:text-center">
+            <div className="tx:animate-spin tx:rounded-full tx:h-16 tx:w-16 tx:border-b-2 tx:border-blue-800 tx:mx-auto"></div>
+            <p className="tx:mt-4 tx:font-semibold tx:text-black">Creando el documento....</p>
+          </div>
+        </div>
+        }
+
 			{/* Botones de Ambientes */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+      <div className="tx:bg-white tx:rounded-lg tx:shadow-md tx:p-6 tx:mb-8">
+        <h2 className="tx:text-xl tx:font-semibold tx:text-gray-800 tx:mb-4">
           Selecciona los ambientes a renovar
         </h2>
-        <div className="buttons-container grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="buttons-container tx:grid tx:grid-cols-2 tx:md:grid-cols-3 tx:lg:grid-cols-5 tx:gap-3">
           {Object.keys(preciosAmbientes).map((tipo) => (
             <button
               key={tipo}
               onClick={() => agregarAmbiente(tipo)}
-              className={`button ${getColorClasses(coloresAmbientes[tipo])} text-white rounded-lg p-4 flex flex-col items-center gap-2 transition-all transform hover:scale-105 active:scale-110 shadow-md`}
+              className={`button ${getColorClasses(coloresAmbientes[tipo])} tx:text-white tx:rounded-lg tx:p-4 tx:flex tx:flex-col tx:items-center tx:gap-2 tx:transition-all tx:transform tx:hover:scale-105 tx:active:scale-110 tx:shadow-md`}
             >
               <Plus size={24} />
-              <span className="font-medium">{nombresAmbientes[tipo]}</span>
-              <span className="text-xs opacity-90">${preciosAmbientes[tipo]}/Ambiente</span>
+              <span className="tx:font-medium">{nombresAmbientes[tipo]}</span>
+              <span className="tx:text-xs tx:opacity-90">${preciosAmbientes[tipo]}/Ambiente</span>
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Selector de Tier */}
-      <div className="mb-6">
-        <h3 className="text-lg font-medium text-gray-700 mb-3">Nivel de terminación</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {Object.keys(TIER_MULTIPLIERS).map((tier) => (
-            <label
-              key={tier}
-              className={`relative flex cursor-pointer rounded-lg border p-4 transition-all ${
-                selectedTier === tier
-                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500'
-                  : 'border-gray-300 bg-white hover:border-blue-300 hover:bg-gray-50'
-              }`}
-            >
-              <input
-                type="radio"
-                name="tier"
-                value={tier}
-                checked={selectedTier === tier}
-                onChange={(e) => setSelectedTier(e.target.value)}
-                className="sr-only"
-              />
-              <div className="flex flex-1 items-center">
-                <div className="flex-shrink-0">
-                  <div
-                    className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${
-                      selectedTier === tier
-                        ? 'border-blue-600 bg-blue-600'
-                        : 'border-gray-300 bg-white'
-                    }`}
-                  >
-                    {selectedTier === tier && (
-                      <div className="h-2 w-2 rounded-full bg-white"></div>
-                    )}
-                  </div>
-                </div>
-                <div className="ml-3 flex-1">
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`block text-sm font-semibold ${
-                        selectedTier === tier ? 'text-blue-900' : 'text-gray-900'
-                      }`}
-                    >
-                      {TIER_NAMES[tier]}
-                    </span>
-                    <span
-                      className={`text-xs font-medium ${
-                        selectedTier === tier ? 'text-blue-700' : 'text-gray-500'
-                      }`}
-                    >
-                      {tier === 'estandar' ? 'Base' : tier === 'basico' ? '-15%' : '+35%'}
-                    </span>
-                  </div>
-                  <span
-                    className={`mt-1 block text-xs ${
-                      selectedTier === tier ? 'text-blue-700' : 'text-gray-500'
-                    }`}
-                  >
-                    {TIER_DESCRIPTIONS[tier]}
-                  </span>
-                </div>
-              </div>
-            </label>
           ))}
         </div>
       </div>
 
       {/* Lista de Ambientes Agregados */}
       {ambientes.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+        <div className="tx:bg-white tx:rounded-lg tx:shadow-md tx:p-6 tx:mb-8">
+          <h2 className="tx:text-xl tx:font-semibold tx:text-gray-800 tx:mb-4">
             Ambientes agregados
           </h2>
-          <div className="space-y-4">
+          <div className="tx:space-y-4">
             {ambientes.map((ambiente, index) => (
               <div
                 key={ambiente.id}
-                className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                className="tx:border tx:border-gray-200 tx:rounded-lg tx:p-4 tx:hover:shadow-md tx:transition-shadow"
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <span className="bg-gray-100 text-gray-700 font-semibold rounded-full w-8 h-8 flex items-center justify-center text-sm">
+                <div className="tx:flex tx:items-start tx:justify-between tx:mb-3">
+                  <div className="tx:flex tx:items-center tx:gap-3">
+                    <span className="tx:bg-gray-100 tx:text-gray-700 tx:font-semibold tx:rounded-full tx:w-8 tx:h-8 tx:flex tx:items-center tx:justify-center tx:text-sm">
                       {index + 1}
                     </span>
                     <div>
-                      <h3 className="font-semibold text-gray-800">
+                      <h3 className="tx:font-semibold tx:text-gray-800">
                         {nombresAmbientes[ambiente.tipo]}
                       </h3>
-                      <p className="text-sm text-gray-500">
+                      <p className="tx:text-sm tx:text-gray-500">
                         ${preciosAmbientes[ambiente.tipo]}/m²
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => eliminarAmbiente(ambiente.id)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                    className="tx:text-red-500 tx:hover:text-red-700 tx:hover:bg-red-50 tx:p-2 tx:rounded-lg tx:transition-colors"
                   >
                     <Trash2 size={20} />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-3">
+                <div className="tx:grid tx:grid-cols-2 tx:gap-4 tx:mb-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="tx:block tx:text-sm tx:font-medium tx:text-gray-700 tx:mb-1">
                       Ancho (metros)
                     </label>
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="decimal"
                       step="0.1"
                       min="0"
                       value={ambiente.ancho}
-                      onChange={(e) => actualizarAmbiente(ambiente.id, 'ancho', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      onChange={(e) => {
+                        // 1. Eliminar todo excepto números y punto
+                        const value = e.target.value.replace(/[^\d.]/g, '');
+                        
+                        // 2. Evitar múltiples puntos decimales
+                        const parts = value.split('.');
+                        const sanitized = parts.length > 2 
+                          ? parts[0] + '.' + parts.slice(1).join('') 
+                          : value;
+                        
+                        actualizarAmbiente(ambiente.id, 'ancho', sanitized);
+                      }}
+                      className="tx:w-full tx:px-3 tx:py-2 tx:border tx:border-gray-300 tx:rounded-lg tx:focus:ring-2 tx:focus:ring-blue-500 tx:focus:border-transparent"
                       placeholder="0.0"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="tx:block tx:text-sm tx:font-medium tx:text-gray-700 tx:mb-1">
                       Largo (metros)
                     </label>
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="decimal"
                       step="0.1"
                       min="0"
                       value={ambiente.largo}
-                      onChange={(e) => actualizarAmbiente(ambiente.id, 'largo', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      onChange={(e) => {
+                        // 1. Eliminar todo excepto números y punto
+                        const value = e.target.value.replace(/[^\d.]/g, '');
+                        
+                        // 2. Evitar múltiples puntos decimales
+                        const parts = value.split('.');
+                        const sanitized = parts.length > 2 
+                          ? parts[0] + '.' + parts.slice(1).join('') 
+                          : value;
+                        
+                        actualizarAmbiente(ambiente.id, 'largo', sanitized);
+                      }}
+                      className="tx:w-full tx:px-3 tx:py-2 tx:border tx:border-gray-300 tx:rounded-lg tx:focus:ring-2 tx:focus:ring-blue-500 tx:focus:border-transparent"
                       placeholder="0.0"
                     />
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="flex justify-between items-center text-sm">
+                <div className="tx:bg-gray-50 tx:rounded-lg tx:p-3">
+                  <div className="tx:flex tx:justify-between tx:items-center tx:text-sm">
                     {/* <span className="text-gray-600">
                       Superficie: {calcularMetros(ambiente).toFixed(2)} m²
                     </span> */}
-                    <span className="font-semibold text-gray-800">
+                    <span className="tx:font-semibold tx:text-gray-800">
                       ${calcularCostoAmbiente(ambiente).toLocaleString('es-AR', { 
                         minimumFractionDigits: 2, 
                         maximumFractionDigits: 2 
                       })}
                     </span>
+                  </div>
+                </div>
+
+                <div className="tx:my-6">
+                  <h3 className="tx:text-lg tx:font-medium tx:text-gray-700 tx:mb-3">Nivel de terminación</h3>
+                  <div className="tx:grid tx:grid-cols-1 tx:md:grid-cols-3 tx:gap-4">
+                    {Object.keys(TIER_MULTIPLIERS).map((tier) => (
+                      <label
+                        key={tier}
+                        className={`tx:relative tx:flex tx:cursor-pointer tx:rounded-lg tx:border tx:p-4 tx:transition-all ${
+                          ambiente.tier === tier
+                            ? 'tx:border-blue-500 tx:bg-blue-50 tx:ring-2 tx:ring-blue-500'
+                            : 'tx:border-gray-300 tx:bg-white tx:hover:border-blue-300 tx:hover:bg-gray-50'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="tier"
+                          value={tier}
+                          checked={ambiente.tier === tier}
+                          onChange={(e) => actualizarAmbiente(ambiente.id, 'tier', e.target.value)}
+                          className="tx:sr-only"
+                        />
+                        <div className="tx:flex tx:flex-1 tx:items-center">
+                          <div className="tx:flex-shrink-0">
+                            <div
+                              className={`tx:flex tx:h-6 tx:w-6 tx:items-center tx:justify-center tx:rounded-full tx:border-2 ${
+                                ambiente.tier === tier
+                                  ? 'tx:border-blue-600 tx:bg-blue-600'
+                                  : 'tx:border-gray-300 tx:bg-white'
+                              }`}
+                            >
+                              {ambiente.tier === tier && (
+                                <div className="tx:h-2 tx:w-2 tx:rounded-full tx:bg-white"></div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="tx:ml-3 tx:flex-1">
+                            <div className="tx:flex tx:items-center tx:justify-between">
+                              <span
+                                className={`tx:block tx:text-sm tx:font-semibold ${
+                                  ambiente.tier === tier ? 'tx:text-blue-900' : 'tx:text-gray-900'
+                                }`}
+                              >
+                                {TIER_NAMES[tier]}
+                              </span>
+                              <span
+                                className={`tx:text-xs tx:font-medium ${
+                                  ambiente.tier === tier ? 'tx:text-blue-700' : 'tx:text-gray-500'
+                                }`}
+                              >
+                                {tier === 'estandar' ? 'Base' : tier === 'basico' ? '-15%' : '+35%'}
+                              </span>
+                            </div>
+                            <span
+                              className={`tx:mt-1 tx:block tx:text-xs ${
+                                ambiente.tier === tier ? 'tx:text-blue-700' : 'tx:text-gray-500'
+                              }`}
+                            >
+                              {TIER_DESCRIPTIONS[tier]}
+                            </span>
+                          </div>
+                        </div>
+                      </label>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -476,33 +559,33 @@ export default function Interiorismo() {
 
       {/* Resumen y Total */}
       {ambientes.length > 0 && (
-        <div className="relative bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+        <div className="tx:relative tx:bg-gradient-to-r tx:from-blue-500 tx:to-purple-600 tx:rounded-lg tx:shadow-lg tx:p-6 tx:text-white">
           <button
             onClick={limpiarForm}
-            className="absolute top-0 right-0 p-2 m-4 transition-all text-red-500 bg-gray-50 hover:text-red-700 hover:bg-gray-200 hover:scale-115 rounded-lg"
+            className="tx:absolute tx:top-0 tx:right-0 tx:p-2 tx:m-4 tx:transition-all tx:text-red-500 tx:bg-gray-50 tx:hover:text-red-700 tx:hover:bg-gray-200 tx:hover:scale-115 tx:rounded-lg"
           >
             <Trash2 size={20} />
           </button>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-2">Resumen del Presupuesto</h2>
-            <p className="text-blue-100 text-sm">
+          <div className="tx:mb-6">
+            <h2 className="tx:text-2xl tx:font-bold tx:mb-2">Resumen del Presupuesto</h2>
+            <p className="tx:text-blue-100 tx:text-sm">
               * Presupuesto aproximado. El precio final puede variar según características específicas.
             </p>
           </div>
 
-          <div className="bg-white bg-opacity-20 rounded-lg p-4 mb-6">
-            <div className="flex justify-between items-center">
+          <div className="tx:bg-white tx:bg-opacity-20 tx:rounded-lg tx:p-4 tx:mb-6">
+            <div className="tx:flex tx:justify-between tx:items-center">
               <div>
-                <p className="text-gray-800 text-sm mb-1">Total de ambientes</p>
-                <p className="text-3xl text-gray-800 lg:text-start font-bold">{ambientes.length}</p>
+                <p className="tx:text-gray-800 tx:text-sm tx:mb-1">Total de ambientes</p>
+                <p className="tx:text-3xl tx:text-gray-800 tx:lg:text-start tx:font-bold">{ambientes.length}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-6 text-gray-800 mb-6">
-            <div className="flex lg:flex-row flex-col justify-between items-center mb-2">
-              <span className="lg:text-lg sm:text-sm font-medium">Total Aproximado:</span>
-              <span className="lg:text-4xl text-2xl font-bold text-blue-600">
+          <div className="tx:bg-white tx:rounded-lg tx:p-6 tx:text-gray-800 tx:mb-6">
+            <div className="tx:flex tx:lg:flex-row tx:flex-col tx:justify-between tx:items-center tx:mb-2">
+              <span className="tx:lg:text-lg tx:sm:text-sm tx:font-medium">Total Aproximado:</span>
+              <span className="tx:lg:text-4xl tx:text-2xl tx:font-bold tx:text-blue-600">
                 ${calcularTotal().toLocaleString('es-AR', { 
                   minimumFractionDigits: 2, 
                   maximumFractionDigits: 2 
@@ -511,26 +594,83 @@ export default function Interiorismo() {
             </div>
           </div>
 
+          {/* Formulario de datos del cliente */}
+          <div className="tx:bg-white tx:rounded-lg tx:p-6 tx:mb-6">
+            <h3 className="tx:text-lg tx:font-semibold tx:text-gray-800 tx:mb-4">
+              Tus datos para el presupuesto
+            </h3>
+            <div className="tx:grid tx:grid-cols-1 tx:md:grid-cols-3 tx:gap-4 tx:text-gray-900">
+              <div>
+                <label htmlFor="cliente-nombre" className="tx:block tx:text-sm tx:font-medium tx:text-gray-700 tx:mb-2">
+                  Nombre completo *
+                </label>
+                <input
+                  type="text"
+                  id="cliente-nombre"
+                  value={clienteNombre}
+                  onChange={(e) => setClienteNombre(e.target.value)}
+                  placeholder="Ej: Juan Pérez"
+                  className="tx:w-full tx:px-4 tx:py-3 tx:border tx:border-gray-300 tx:rounded-lg tx:focus:ring-2 tx:focus:ring-blue-500 tx:focus:border-transparent tx:transition-all"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="cliente-email" className="tx:block tx:text-sm tx:font-medium tx:text-gray-700 tx:mb-2">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  id="cliente-email"
+                  value={clienteEmail}
+                  onChange={(e) => setClienteEmail(e.target.value)}
+                  placeholder="ejemplo@email.com"
+                  className="tx:w-full tx:px-4 tx:py-3 tx:border tx:border-gray-300 tx:rounded-lg tx:focus:ring-2 tx:focus:ring-blue-500 tx:focus:border-transparent tx:transition-all"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="cliente-telefono" className="tx:block tx:text-sm tx:font-medium tx:text-gray-700 tx:mb-2">
+                  Teléfono *
+                </label>
+                <input
+                  type="tel"
+                  id="cliente-telefono"
+                  value={clienteTelefono}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^\d\s\-+]/g, '')
+                    setClienteTelefono(value)
+                  }}
+                  placeholder="+54 11 1234-5678"
+                  className="tx:w-full tx:px-4 tx:py-3 tx:border tx:border-gray-300 tx:rounded-lg tx:focus:ring-2 tx:focus:ring-blue-500 tx:focus:border-transparent tx:transition-all"
+                  required
+                />
+              </div>
+            </div>
+            <p className="tx:text-xs tx:text-gray-500 tx:mt-3">
+              * Campos requeridos para descargar el presupuesto
+            </p>
+          </div>
+
           <button
             onClick={generarPDF}
-            className="w-full bg-white text-blue-600 font-semibold py-4 rounded-lg hover:scale-[103%] active:scale-[96%] transition-all flex items-center justify-center gap-2 shadow-lg"
+            className="tx:w-full tx:bg-white tx:text-blue-600 tx:font-semibold tx:py-4 tx:ounded-lg tx:hover:scale-[103%] tx:active:scale-[96%] tx:transition-all tx:flex tx:items-center tx:justify-center tx:gap-2 tx:shadow-lg"
           >
-            <Download className='hidden sm:block' size={24} />
-            <span className='px-1 lg:px-0'>Descargar Presupuesto en PDF</span>
+            <Download className='tx:hidden tx:sm:block' size={24} />
+            <span className='tx:px-1 tx:lg:px-0'>Descargar Presupuesto en PDF</span>
           </button>
         </div>
       )}
 
       {/* Mensaje inicial */}
       {ambientes.length === 0 && (
-        <div className="bg-white rounded-lg shadow-md p-12 text-center">
-          <div className="text-gray-400 mb-4">
-            <Plus size={64} className="mx-auto" />
+        <div className="tx:bg-white tx:rounded-lg tx:shadow-md tx:p-12 tx:text-center">
+          <div className="tx:text-gray-400 tx:mb-4">
+            <Plus size={64} className="tx:mx-auto" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+          <h3 className="tx:text-xl tx:font-semibold tx:text-gray-600 tx:mb-2">
             Comienza agregando ambientes
           </h3>
-          <p className="text-gray-500">
+          <p className="tx:text-gray-500">
             Selecciona los ambientes que deseas renovar desde los botones de arriba
           </p>
         </div>
