@@ -376,7 +376,7 @@ export default function Interiorismo() {
             <button
               key={tipo}
               onClick={() => agregarAmbiente(tipo)}
-              className={`button ${getColorClasses(coloresAmbientes[tipo])} tx:text-white tx:rounded-lg tx:p-4 tx:flex tx:flex-col tx:items-center tx:gap-2 tx:transition-all tx:transform tx:hover:scale-105 tx:active:scale-110 tx:shadow-md`}
+              className={`button ${getColorClasses(coloresAmbientes[tipo])} tx:rounded-lg tx:p-4 tx:flex tx:flex-col tx:items-center tx:gap-2 tx:transition-all tx:transform tx:hover:scale-105 tx:active:scale-110 tx:shadow-md`}
             >
               <Plus size={24} />
               <span className="tx:font-medium">{nombresAmbientes[tipo]}</span>
