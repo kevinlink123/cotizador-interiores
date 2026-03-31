@@ -299,10 +299,8 @@ jQuery(document).ready(function($) {
             'purple': 'Púrpura',
             'teal': 'Turquesa',
             'red': 'Rojo',
-            'pink': 'Rosa',
-            'yellow': 'Amarillo',
-            'indigo': 'Índigo',
-            'cyan': 'Cian'
+            'black': 'Negro',
+            'white': 'Blanco'
         };
         
         var colorOptionsHtml = '';

@@ -54,6 +54,7 @@ class Cotizador_Admin {
     
     public function render_admin_page() {
         $ambientes = get_option('cotizador_ambientes');
+        $ambientes_interiorismo = get_option('cotizador_interiorismo');
         $config = get_option('cotizador_config');
         
         // Colores disponibles para selección
@@ -64,10 +65,8 @@ class Cotizador_Admin {
             'purple' => 'Púrpura',
             'teal' => 'Turquesa',
             'red' => 'Rojo',
-            'pink' => 'Rosa',
-            'yellow' => 'Amarillo',
-            'indigo' => 'Índigo',
-            'cyan' => 'Cian'
+            'black' => 'Negro',
+            'white' => 'Blanco'
         );
         ?>
         <div class="wrap cotizador-admin-wrap">

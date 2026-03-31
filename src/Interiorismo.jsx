@@ -103,14 +103,16 @@ export default function Interiorismo() {
 
   const getColorClasses = (color) => {
     const colorMap = {
-      blue: "tx:bg-blue-500 tx:hover:bg-blue-600",
-      green: "tx:bg-green-500 tx:hover:bg-green-600",
-      orange: "tx:bg-orange-500 tx:hover:bg-orange-600",
-      purple: "tx:bg-purple-500 tx:hover:bg-purple-600",
-      teal: "tx:bg-teal-500 tx:hover:bg-teal-600",
-      red: "tx:bg-red-500 tx:hover:bg-red-600",
+      blue: 'tx:bg-blue-500 tx:hover:bg-blue-600 tx:text-white',
+      green: 'tx:bg-green-500 tx:hover:bg-green-600 tx:text-white',
+      orange: 'tx:bg-orange-500 tx:hover:bg-orange-600 tx:text-white',
+      purple: 'tx:bg-purple-500 tx:hover:bg-purple-600 tx:text-white',
+      teal: 'tx:bg-teal-500 tx:hover:bg-teal-600 tx:text-white',
+      red: 'tx:bg-red-500 tx:hover:bg-red-600 tx:text-white',
+      black: "tx:bg-gray-800 tx:hover:bg-black tx:text-white",
+      white: "tx:bg-gray-200 tx:hover:bg-white tx:text-black"
     };
-    return colorMap[color] || "tx:bg-gray-500 tx:hover:bg-gray-600";
+    return colorMap[color] || "tx:bg-gray-500 tx:hover:bg-gray-600 tx:text-white";
   };
 
   const agregarAmbiente = (tipo) => {
