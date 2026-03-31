@@ -148,9 +148,11 @@ class Cotizador_Interiores {
             true
         );
 
-        wp_enqueue_style(
+        // NO cargamos el CSS aquí porque se inyecta en el Shadow DOM
+        // Pero lo registramos para que esté disponible
+        wp_register_style(
             'cotizador-tailwind-css',
-            COTIZADOR_PLUGIN_URL . 'build/cotizador.css', // ← Tu Tailwind compilado
+            COTIZADOR_PLUGIN_URL . 'build/cotizador.css',
             array(),
             COTIZADOR_VERSION
         );
@@ -164,10 +166,11 @@ class Cotizador_Interiores {
             true
         );
         
-        // Pasar datos al JavaScript
+        // Pasar datos al JavaScript (incluye la URL del CSS)
         wp_localize_script('cotizador-app', 'cotizadorData', array(
             'apiUrl' => rest_url('cotizador/v1/'),
-            'nonce' => wp_create_nonce('wp_rest')
+            'nonce' => wp_create_nonce('wp_rest'),
+            'cssUrl' => COTIZADOR_PLUGIN_URL . 'build/cotizador.css' // ← AGREGAR ESTO
         ));
         
         // // Cargar Tailwind CSS

@@ -42,20 +42,63 @@ export default function CotizadorInteriores() {
   );
 }
 
-// Renderizar el componente cuando el DOM esté listo
+// Renderizar con Shadow DOM
 if (typeof window !== 'undefined') {
-  window.addEventListener('DOMContentLoaded', () => {
-    const root = document.getElementById('cotizador-root');
-    if (root && window.React && window.ReactDOM) {
-      const { createRoot } = window.ReactDOM;
-      const rootElement = createRoot(root);
-      rootElement.render(React.createElement(CotizadorInteriores));
+  const initCotizador = () => {
+    const hostElement = document.getElementById('cotizador-root');
+    
+    if (!hostElement || hostElement.hasAttribute('data-cotizador-initialized')) {
+      return;
     }
-  });
+    
+    if (!window.React || !window.ReactDOM) {
+      console.error('React o ReactDOM no están cargados');
+      return;
+    }
+    
+    // Marcar como inicializado
+    hostElement.setAttribute('data-cotizador-initialized', 'true');
+    
+    // Crear Shadow DOM
+    const shadowRoot = hostElement.attachShadow({ mode: 'open' });
+    
+    // Crear contenedor para React
+    const reactContainer = document.createElement('div');
+    shadowRoot.appendChild(reactContainer);
+    
+    // Inyectar CSS de Tailwind en el Shadow DOM
+    const styleElement = document.createElement('style');
+    
+    // Obtener el CSS compilado de Tailwind
+    fetch(window.cotizadorData?.cssUrl || '/wp-content/plugins/cotizador-interiores/build/cotizador.css')
+      .then(response => response.text())
+      .then(css => {
+        styleElement.textContent = css;
+        shadowRoot.insertBefore(styleElement, reactContainer);
+        
+        // Renderizar React dentro del Shadow DOM
+        const { createRoot } = window.ReactDOM;
+        const root = createRoot(reactContainer);
+        root.render(React.createElement(CotizadorInteriores));
+      })
+      .catch(error => {
+        console.error('Error cargando CSS:', error);
+        // Renderizar sin CSS como fallback
+        const { createRoot } = window.ReactDOM;
+        const root = createRoot(reactContainer);
+        root.render(React.createElement(CotizadorInteriores));
+      });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCotizador);
+  } else {
+    initCotizador();
+  }
 }
 
-// VIEJARDO
-// Renderizar el componente cuando el DOM esté listo
+// OLD
+// // Renderizar el componente cuando el DOM esté listo
 // if (typeof window !== 'undefined') {
 //   window.addEventListener('DOMContentLoaded', () => {
 //     const root = document.getElementById('cotizador-root');
