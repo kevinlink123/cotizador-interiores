@@ -299,8 +299,11 @@ jQuery(document).ready(function($) {
             'purple': 'Púrpura',
             'teal': 'Turquesa',
             'red': 'Rojo',
+            'white': 'Blanco',
+            'lightgray': 'Gris Claro',
+            'gray': 'Gris',
+            'darkgray': 'Gris Oscuro',
             'black': 'Negro',
-            'white': 'Blanco'
         };
         
         var colorOptionsHtml = '';

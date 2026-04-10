@@ -65,8 +65,11 @@ class Cotizador_Admin {
             'purple' => 'Púrpura',
             'teal' => 'Turquesa',
             'red' => 'Rojo',
+            'white' => 'Blanco',
+            'lightgray' => 'Gris Claro',
+            'gray' => 'Gris',
+            'darkgray' => 'Gris Oscuro',
             'black' => 'Negro',
-            'white' => 'Blanco'
         );
         ?>
         <div class="wrap cotizador-admin-wrap">
