@@ -109,8 +109,11 @@ export default function Interiorismo() {
       purple: 'tx:bg-purple-500 tx:hover:bg-purple-600 tx:text-white',
       teal: 'tx:bg-teal-500 tx:hover:bg-teal-600 tx:text-white',
       red: 'tx:bg-red-500 tx:hover:bg-red-600 tx:text-white',
-      black: "tx:bg-gray-800 tx:hover:bg-black tx:text-white",
-      white: "tx:bg-gray-200 tx:hover:bg-white tx:text-black"
+      white: "tx:bg-[#FFFFFF] tx:hover:bg-[#FFFFFF] tx:text-black",
+      lightgray: "tx:bg-[#C2C1C3] tx:hover:bg-[#C2C1C3]/75 tx:text-black",
+      gray: "tx:bg-[#858387] tx:hover:bg-[#858387]/75 tx:text-black",
+      darkgray: "tx:bg-[#48454B] tx:hover:bg-[#48454B]/75 tx:text-white",
+      black: "tx:bg-[#0A070E] tx:hover:bg-[#0A070E]/75 tx:text-white",
     };
     return colorMap[color] || "tx:bg-gray-500 tx:hover:bg-gray-600 tx:text-white";
   };

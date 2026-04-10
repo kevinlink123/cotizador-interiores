@@ -113,7 +113,7 @@ export default function RenovacionCompleta() {
       white: "tx:bg-[#FFFFFF] tx:hover:bg-[#FFFFFF] tx:text-black",
       lightgray: "tx:bg-[#C2C1C3] tx:hover:bg-[#C2C1C3]/75 tx:text-black",
       gray: "tx:bg-[#858387] tx:hover:bg-[#858387]/75 tx:text-black",
-      darkgray: "tx:bg-[#48454B] tx:hover:bg-[#48454B]/75 tx:text-black",
+      darkgray: "tx:bg-[#48454B] tx:hover:bg-[#48454B]/75 tx:text-white",
       black: "tx:bg-[#0A070E] tx:hover:bg-[#0A070E]/75 tx:text-white",
     };
     return colorMap[color] || 'tx:bg-gray-500 tx:hover:bg-gray-600 tx:text-white';
