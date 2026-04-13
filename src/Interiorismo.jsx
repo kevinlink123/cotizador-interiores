@@ -292,6 +292,7 @@ export default function Interiorismo() {
       nombre: clienteNombre,
       email: clienteEmail,
       telefono: clienteTelefono,
+      tipoDeServicio: "Interiorismo",
       ambientes: ambFormateados,
       total: calcularTotal(),
       pdfBase64: pdfBase64  // ← El PDF completo
@@ -312,7 +313,7 @@ export default function Interiorismo() {
   };
 
   const enviarAGoogleSheets = async (datos) => {
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDIlSI4_sE2dpnw3GO9eVO-HlW_coard0dsT3Q9LOB0fvZ4iZBuo3t8MA06cjivGr8dw/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyryEV3H6-RNz7FvR79cf6I26GM6AdVf2ysXmnPZj7ny7KqBM7T-HQCR71oYzv9qmymBg/exec';
     
     // Hace una petición HTTP POST a Google Apps Script
     const response = await fetch(GOOGLE_SCRIPT_URL, {
