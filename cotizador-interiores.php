@@ -148,9 +148,8 @@ class Cotizador_Interiores {
             true
         );
 
-        // NO cargamos el CSS aquí porque se inyecta en el Shadow DOM
-        // Pero lo registramos para que esté disponible
-        wp_register_style(
+        // IMPORTANTE USAR wp_enqueue_style EN LUGAR DE wp_register_style
+        wp_enqueue_style(
             'cotizador-tailwind-css',
             COTIZADOR_PLUGIN_URL . 'build/cotizador.css',
             array(),
