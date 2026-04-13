@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Download } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import ModalPresupuesto from './ModalPresupuesto';
 
 export default function Interiorismo() {
   const [ambientes, setAmbientes] = useState([]);
@@ -9,6 +10,7 @@ export default function Interiorismo() {
   const [clienteNombre, setClienteNombre] = useState('');
   const [clienteEmail, setClienteEmail] = useState('');
   const [clienteTelefono, setClienteTelefono] = useState('');
+  const [precioTotal] = useState(0);
 
   const [preciosAmbientes, setPreciosAmbientes] = useState({});
   const [nombresAmbientes, setNombresAmbientes] = useState({});
@@ -20,6 +22,8 @@ export default function Interiorismo() {
 
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState("");
 
   useEffect(() => {
     const loadData = async () => {
@@ -293,12 +297,18 @@ export default function Interiorismo() {
       pdfBase64: pdfBase64  // ← El PDF completo
     };
 
-    setUploading(true);
-    await enviarAGoogleSheets(datosParaSheet);
-    setUploading(false);
-
-    // Descargar
-    doc.save(`${clienteNombre}-cotizacion-diseno-interiores.pdf`);
+    try {
+      setUploading(true);
+      await enviarAGoogleSheets(datosParaSheet);
+      setUploading(false);
+      setIsModalOpen(true);
+      
+      // Descargar
+      doc.save(`${clienteNombre}-cotizacion-diseno-interiores.pdf`);
+    }catch(err) {
+      setUploading(false);
+      alert("Error al intentar crear el presupuesto, intentelo de nuevo mas tarde!")
+    }
   };
 
   const enviarAGoogleSheets = async (datos) => {
@@ -359,6 +369,17 @@ export default function Interiorismo() {
 
   return (
 		<div className="interiorismo-container tx:max-w-5xl tx:mx-auto">
+      {/* WPP Modal */}
+        <ModalPresupuesto
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          datosPresupuesto={{
+            numero: clienteTelefono,
+            cliente: clienteNombre,
+            total: `USD ${calcularTotal()}`
+          }}
+        />
+        
       {/* Dropshadow */}
         { uploading && 
         <div className='tx:fixed tx:z-10 tx:top-0 tx:left-0 tx:bg-black/50 tx:w-screen tx:h-screen'>
