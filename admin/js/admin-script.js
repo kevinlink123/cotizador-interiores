@@ -7,6 +7,7 @@ jQuery(document).ready(function($) {
     $('.nav-tab').on('click', function(e) {
         e.preventDefault();
         var target = $(this).attr('href');
+        console.log($(target))
         
         $('.nav-tab').removeClass('nav-tab-active');
         $(this).addClass('nav-tab-active');
@@ -399,6 +400,280 @@ jQuery(document).ready(function($) {
             showNotice('Shortcode copiado al portapapeles', 'success');
         }
     });
+
+
+    // ARRANCAR DESDE ACA LAS 3 FUNCIONES PRINCIPALES PARA INTERIORISMO
+    // GUARDAR UN AMBIENTE NUEVO
+    // AGREGAR NUEVO ESPACIO DE AMBIENTE
+    // ELIMINAR ESPACIO DE AMBIENTE 
+
+
+    // ========================================
+    // GUARDAR INTERIORISMO NUEVO
+    // Modificar los id de "new-ambiente" a "new-interiorismo"
+    // Modificar el objetivo de la validacion de keys duplicados
+    // Cambiar la url de la llamada a api a "interiorismo"
+    // ========================================
+    
+    // ========================================
+    // GUARDAR INTERIORISMO
+    // ========================================
+    $('#interiorismo-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        var $button = $('#save-interiorismo');
+        var buttonText = $button.text();
+        
+        $button.prop('disabled', true).text('Guardando...');
+        
+        var ambientes = {};
+        
+        // Recopilar datos de ambientes
+        $('input[name^="interiorismo"]').each(function() {
+            var name = $(this).attr('name');
+            var matches = name.match(/interiorismo\[(.+?)\]\[(.+?)\]/);
+            if (matches) {
+                var tipo = matches[1];
+                var campo = matches[2];
+                
+                if (!ambientes[tipo]) {
+                    ambientes[tipo] = {};
+                }
+                
+                if (campo === 'precio') {
+                    ambientes[tipo][campo] = parseFloat($(this).val()) || 0;
+                } else {
+                    ambientes[tipo][campo] = $(this).val();
+                }
+            }
+        });
+        
+        // Recopilar selects de color
+        $('select[name^="interiorismo"]').each(function() {
+            var name = $(this).attr('name');
+            var matches = name.match(/interiorismo\[(.+?)\]\[(.+?)\]/);
+            if (matches) {
+                var tipo = matches[1];
+                ambientes[tipo].color = $(this).val();
+            }
+        });
+        
+        $.ajax({
+            url: cotizadorAdmin.apiUrl + 'interiorismo',
+            method: 'POST',
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('X-WP-Nonce', cotizadorAdmin.nonce);
+            },
+            data: JSON.stringify(ambientes),
+            contentType: 'application/json',
+            success: function(response) {
+                showNotice('Ambientes actualizados correctamente', 'success');
+                $button.prop('disabled', false).text(buttonText);
+                updateInteriorismoCount();
+            },
+            error: function() {
+                showNotice('Error al actualizar los ambientes', 'error');
+                $button.prop('disabled', false).text(buttonText);
+            }
+        });
+    });
+    
+    // ========================================
+    // MODAL: AGREGAR INTERIORISMO
+    // ========================================
+    $('#add-interiorismo-btn').on('click', function() {
+        $('#add-interiorismo-modal').fadeIn(200);
+        $('#new-interiorismo-key').focus();
+    });
+    
+    $('#cancel-add-interiorismo, .interiorismo-cotizador-modal-close').on('click', function() {
+        closeAddInteriorismoModal();
+    });
+    
+    // Cerrar modal al hacer clic fuera
+    $('#add-interiorismo-modal').on('click', function(e) {
+        if ($(e.target).is('#add-interiorismo-modal')) {
+            closeAddInteriorismoModal();
+        }
+    });
+    
+    function closeAddInteriorismoModal() {
+        $('#add-interiorismo-modal').fadeOut(200);
+        $('#add-interiorismo-form')[0].reset();
+    }
+    
+    // Validar ID del ambiente (solo letras, números y guiones bajos)
+    $('#new-interiorismo-key').on('input', function() {
+        var value = $(this).val();
+        var sanitized = value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+        $(this).val(sanitized);
+    });
+    
+    // ========================================
+    // GUARDAR NUEVO INTERIORISMO
+    // ========================================
+    $('#save-new-interiorismo').on('click', function() {
+        var $form = $('#add-interiorismo-form');
+        
+        // Validar formulario HTML5
+        if (!$form[0].checkValidity()) {
+            $form[0].reportValidity();
+            return;
+        }
+        
+        var key = $('#new-interiorismo-key').val().trim();
+        var nombre = $('#new-interiorismo-nombre').val().trim();
+        var precio = parseFloat($('#new-interiorismo-precio').val());
+        var color = $('#new-interiorismo-color').val();
+        
+        // Validaciones adicionales
+        if (!key || !nombre || isNaN(precio)) {
+            showNotice('Por favor completa todos los campos', 'error');
+            return;
+        }
+        
+        // Verificar que el ID no exista
+        if ($('tr[data-interiorismo-key="' + key + '"]').length > 0) {
+            showNotice('Ya existe un ambiente con ese ID. Usa uno diferente.', 'error');
+            $('#new-interiorismo-key').focus();
+            return;
+        }
+        
+        var $button = $(this);
+        var buttonText = $button.text();
+        $button.prop('disabled', true).text('Agregando...');
+        
+        // Obtener ambientes actuales
+        $.ajax({
+            url: cotizadorAdmin.apiUrl + 'interiorismo',
+            method: 'GET',
+            success: function(ambientes) {
+                // Agregar nuevo ambiente
+                ambientes[key] = {
+                    nombre: nombre,
+                    precio: precio,
+                    color: color
+                };
+                
+                // Guardar
+                $.ajax({
+                    url: cotizadorAdmin.apiUrl + 'interiorismo',
+                    method: 'POST',
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('X-WP-Nonce', cotizadorAdmin.nonce);
+                    },
+                    data: JSON.stringify(ambientes),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        showNotice('Ambiente agregado correctamente', 'success');
+                        addInteriorismoToTable(key, nombre, precio, color);
+                        closeAddInteriorismoModal();
+                        $button.prop('disabled', false).text(buttonText);
+                        updateInteriorismoCount();
+                    },
+                    error: function() {
+                        showNotice('Error al agregar el ambiente', 'error');
+                        $button.prop('disabled', false).text(buttonText);
+                    }
+                });
+            },
+            error: function() {
+                showNotice('Error al cargar los ambientes', 'error');
+                $button.prop('disabled', false).text(buttonText);
+            }
+        });
+    });
+    
+    // ========================================
+    // AGREGAR INTERIORISMO A LA TABLA
+    // ========================================
+    function addInteriorismoToTable(key, nombre, precio, color) {
+        var coloresOptions = {
+            'blue': 'Azul',
+            'green': 'Verde',
+            'orange': 'Naranja',
+            'purple': 'Púrpura',
+            'teal': 'Turquesa',
+            'red': 'Rojo',
+            'white': 'Blanco',
+            'lightgray': 'Gris Claro',
+            'gray': 'Gris',
+            'darkgray': 'Gris Oscuro',
+            'black': 'Negro',
+        };
+        
+        var colorOptionsHtml = '';
+        for (var colorValue in coloresOptions) {
+            var selected = colorValue === color ? 'selected' : '';
+            colorOptionsHtml += '<option value="' + colorValue + '" ' + selected + '>' + coloresOptions[colorValue] + '</option>';
+        }
+        
+        var newRow = $('<tr data-interiorismo-key="' + key + '">');
+        newRow.html(
+            '<td><strong>' + escapeHtml(key) + '</strong></td>' +
+            '<td><input type="text" name="interiorismo[' + key + '][nombre]" value="' + escapeHtml(nombre) + '" class="regular-text" required></td>' +
+            '<td><input type="number" name="interiorismo[' + key + '][precio]" value="' + precio + '" step="0.01" min="0" class="small-text" required> <span class="description">ARS</span></td>' +
+            '<td><select name="interiorismo[' + key + '][color]">' + colorOptionsHtml + '</select></td>' +
+            '<td><button type="button" class="button button-small delete-ambiente-btn" data-ambiente-key="' + key + '"><span class="dashicons dashicons-trash"></span> Eliminar</button></td>'
+        );
+        
+        $('#interiorismo-list').append(newRow);
+        
+        // Animar la nueva fila
+        newRow.hide().fadeIn(300);
+    }
+    
+    // ========================================
+    // ELIMINAR INTERIORISMO
+    // ========================================
+    $(document).on('click', '.delete-interiorismo-btn', function() {
+        var key = $(this).data('interiorismo-key');
+        var $row = $(this).closest('tr');
+        var nombre = $row.find('input[name*="nombre"]').val();
+        
+        if (!confirm(cotizadorAdmin.confirmDelete)) {
+            return;
+        }
+        
+        var $button = $(this);
+        $button.prop('disabled', true);
+        
+        // Obtener ambientes actuales
+        $.ajax({
+            url: cotizadorAdmin.apiUrl + 'interiorismo',
+            method: 'GET',
+            success: function(ambientes) {
+                // Eliminar el ambiente
+                delete ambientes[key];
+                
+                // Guardar
+                $.ajax({
+                    url: cotizadorAdmin.apiUrl + 'interiorismo',
+                    method: 'POST',
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('X-WP-Nonce', cotizadorAdmin.nonce);
+                    },
+                    data: JSON.stringify(ambientes),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        showNotice('Ambiente "' + nombre + '" eliminado correctamente', 'success');
+                        $row.fadeOut(300, function() {
+                            $(this).remove();
+                            updateInteriorismoCount();
+                        });
+                    },
+                    error: function() {
+                        showNotice('Error al eliminar el ambiente', 'error');
+                        $button.prop('disabled', false);
+                    }
+                });
+            },
+            error: function() {
+                showNotice('Error al cargar los ambientes', 'error');
+                $button.prop('disabled', false);
+            }
+        });
+    });
     
     // ========================================
     // FUNCIONES AUXILIARES
@@ -438,5 +713,10 @@ jQuery(document).ready(function($) {
     function updateAmbientesCount() {
         var count = $('#ambientes-list tr').length;
         $('.ambientes-count strong').text(count);
+    }
+
+    function updateInteriorismoCount() {
+        var count = $('#interiorismo-list tr').length;
+        $('.interiorismo-count strong').text(count);
     }
 });

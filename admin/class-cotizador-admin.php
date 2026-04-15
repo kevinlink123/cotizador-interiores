@@ -82,7 +82,8 @@ class Cotizador_Admin {
                 <!-- Tabs -->
                 <h2 class="nav-tab-wrapper">
                     <a href="#config" class="nav-tab nav-tab-active">Configuración General</a>
-                    <a href="#ambientes" class="nav-tab">Ambientes y Precios</a>
+                    <a href="#ambientes" class="nav-tab">Renovación Completa</a>
+                    <a href="#interiorismo" class="nav-tab">Interiorismo + Mobiliario</a>
                     <a href="#shortcode" class="nav-tab">Uso del Shortcode</a>
                 </h2>
                 
@@ -314,6 +315,170 @@ class Cotizador_Admin {
                         </p>
                         
                         <?php submit_button('Guardar Ambientes', 'primary large', 'save-ambientes'); ?>
+                    </form>
+                </div>
+
+                <!-- Tab: Interiorismo -->
+                <div id="interiorismo" class="tab-content">
+                    <div class="ambientes-header">
+                        <p>Configura los tipos de ambientes disponibles y sus precios por m²</p>
+                        <button type="button" class="button button-primary" id="add-interiorismo-btn">
+                            <span class="dashicons dashicons-plus-alt"></span>
+                            Agregar Nuevo Ambiente
+                        </button>
+                    </div>
+                    
+                    <!-- Modal para agregar ambiente -->
+                    <div id="add-interiorismo-modal" class="cotizador-modal" style="display: none;">
+                        <div class="cotizador-modal-content">
+                            <div class="cotizador-modal-header">
+                                <h2>Agregar Nuevo Ambiente</h2>
+                                <button type="button" class="interiorismo-cotizador-modal-close">&times;</button>
+                            </div>
+                            <div class="cotizador-modal-body">
+                                <form id="add-interiorismo-form">
+                                    <table class="form-table">
+                                        <tr>
+                                            <th scope="row">
+                                                <label for="new-interiorismo-key">ID del Ambiente *</label>
+                                            </th>
+                                            <td>
+                                                <input type="text" 
+                                                       id="new-interiorismo-key" 
+                                                       name="key" 
+                                                       class="regular-text"
+                                                       placeholder="ej: oficina"
+                                                       required>
+                                                <p class="description">
+                                                    Solo letras minúsculas, números y guiones bajos. Sin espacios.
+                                                    <br>Ejemplo: oficina, sala_estar, cocina_comedor
+                                                </p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <label for="new-interiorismo-nombre">Nombre *</label>
+                                            </th>
+                                            <td>
+                                                <input type="text" 
+                                                       id="new-interiorismo-nombre" 
+                                                       name="nombre" 
+                                                       class="regular-text"
+                                                       placeholder="ej: Oficina"
+                                                       required>
+                                                <p class="description">Nombre que verán los usuarios</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <label for="new-interiorismo-precio">Precio por m² *</label>
+                                            </th>
+                                            <td>
+                                                <input type="number" 
+                                                       id="new-interiorismo-precio" 
+                                                       name="precio" 
+                                                       class="regular-text"
+                                                       step="0.01"
+                                                       min="0"
+                                                       placeholder="ej: 150"
+                                                       required>
+                                                <span class="description">ARS</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <label for="new-interiorismo-color">Color *</label>
+                                            </th>
+                                            <td>
+                                                <select id="new-interiorismo-color" name="color" required>
+                                                    <?php foreach ($colores_disponibles as $value => $label): ?>
+                                                        <option value="<?php echo esc_attr($value); ?>">
+                                                            <?php echo esc_html($label); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <p class="description">Color del botón en el cotizador</p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div>
+                            <div class="cotizador-modal-footer">
+                                <button type="button" class="button" id="cancel-add-interiorismo">Cancelar</button>
+                                <button type="button" class="button button-primary" id="save-new-interiorismo">
+                                    Agregar Ambiente
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form id="interiorismo-form" method="post">
+                        <div class="ambientes-notice">
+                            <span class="dashicons dashicons-info"></span>
+                            Los cambios se guardan automáticamente al hacer clic en "Guardar Ambientes"
+                        </div>
+                        
+                        <table class="wp-list-table widefat fixed striped ambientes-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 15%;">ID</th>
+                                    <th style="width: 25%;">Nombre</th>
+                                    <th style="width: 20%;">Precio por m²</th>
+                                    <th style="width: 20%;">Color</th>
+                                    <th style="width: 20%;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="interiorismo-list">
+                                <?php foreach ($ambientes_interiorismo as $key => $ambiente): ?>
+                                <tr data-interiorismo-key="<?php echo esc_attr($key); ?>">
+                                    <td>
+                                        <strong><?php echo esc_html($key); ?></strong>
+                                    </td>
+                                    <td>
+                                        <input type="text" 
+                                               name="interiorismo[<?php echo esc_attr($key); ?>][nombre]" 
+                                               value="<?php echo esc_attr($ambiente['nombre']); ?>" 
+                                               class="regular-text"
+                                               required>
+                                    </td>
+                                    <td>
+                                        <input type="number" 
+                                               name="interiorismo[<?php echo esc_attr($key); ?>][precio]" 
+                                               value="<?php echo esc_attr($ambiente['precio']); ?>" 
+                                               step="0.01" 
+                                               min="0" 
+                                               class="small-text"
+                                               required>
+                                        <span class="description">ARS</span>
+                                    </td>
+                                    <td>
+                                        <select name="interiorismo[<?php echo esc_attr($key); ?>][color]">
+                                            <?php foreach ($colores_disponibles as $value => $label): ?>
+                                                <option value="<?php echo esc_attr($value); ?>" 
+                                                        <?php selected($ambiente['color'], $value); ?>>
+                                                    <?php echo esc_html($label); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <button type="button" 
+                                                class="button button-small delete-interiorismo-btn" 
+                                                data-interiorismo-key="<?php echo esc_attr($key); ?>">
+                                            <span class="dashicons dashicons-trash"></span>
+                                            Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        
+                        <p class="interiorismo-count">
+                            Total de ambientes: <strong><?php echo count($ambientes_interiorismo); ?></strong>
+                        </p>
+                        
+                        <?php submit_button('Guardar Ambientes', 'primary large', 'save-interiorismo'); ?>
                     </form>
                 </div>
                 

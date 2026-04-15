@@ -42,7 +42,7 @@
     padding: 20px;
 }
 
-.tab-content.active {
+.active {
     display: block;
 }
 
@@ -73,6 +73,19 @@
 }
 
 #add-ambiente-btn .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+#add-interiorismo-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 36px;
+}
+
+#add-interiorismo-btn .dashicons {
     font-size: 18px;
     width: 18px;
     height: 18px;
@@ -124,7 +137,35 @@
     height: 16px;
 }
 
+.delete-interiorismo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #b32d2e;
+    border-color: #b32d2e;
+}
+
+.delete-interiorismo-btn:hover {
+    color: #fff;
+    background: #b32d2e;
+    border-color: #b32d2e;
+}
+
+.delete-interiorismo-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
 .ambientes-count {
+    margin-top: 15px;
+    padding: 10px 15px;
+    background: #f0f0f1;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.interiorismo-count {
     margin-top: 15px;
     padding: 10px 15px;
     background: #f0f0f1;
@@ -396,6 +437,11 @@
     }
     
     #add-ambiente-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    #add-interiorismo-btn {
         width: 100%;
         justify-content: center;
     }
