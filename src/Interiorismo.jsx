@@ -306,6 +306,8 @@ export default function Interiorismo() {
       
       // Descargar
       doc.save(`${clienteNombre}-cotizacion-diseno-interiores.pdf`);
+
+      limpiarForm();
     }catch(err) {
       setUploading(false);
       alert("Error al intentar crear el presupuesto, intentelo de nuevo mas tarde!")
