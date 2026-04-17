@@ -2,10 +2,10 @@ import { useState } from 'react';
 
 const ModalPresupuesto = ({ isOpen, onClose, datosPresupuesto }) => {
   const [isGenerating, setIsGenerating] = useState(false);
-
+  
   const handleWhatsAppMessage = () => {
     // Número de teléfono (incluir código de país sin el signo +)
-    const numeroTelefono = "5491122618594"; // Cambia por el número real
+    const numeroTelefono = "541150111130"; // Cambia por el número real
     
     // Texto del mensaje
     const mensaje = `Hola! Acabo de usar el cotizador para generar un presupuesto preliminar:
