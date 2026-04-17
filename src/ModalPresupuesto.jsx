@@ -10,14 +10,12 @@ const ModalPresupuesto = ({ isOpen, onClose, datosPresupuesto }) => {
     // Texto del mensaje
     const mensaje = `Hola! Acabo de usar el cotizador para generar un presupuesto preliminar:
     
-📄 Numero de telefono: ${datosPresupuesto.numero || 'Sin número'}
-👤 Interesado: ${datosPresupuesto.cliente || 'No especificado'}
-💰 Presupuesto aproximado: ${datosPresupuesto.total || '$0'}
-📅 Fecha de solicitud: ${new Date().toLocaleDateString()}
+Numero de telefono: ${datosPresupuesto.numero || 'Sin número'}
+Interesado: ${datosPresupuesto.cliente || 'No especificado'}
+Presupuesto aproximado: ${datosPresupuesto.total || '$0'}
+Fecha de solicitud: ${new Date().toLocaleDateString()}
 
-Adjunto encontrarás el PDF del presupuesto.
-
-¡Quedamos atentos a tu consulta!`;
+¡Quedamos atento a su respuesta para seguir adelante con el proyecto!`;
     
     // Codificar el mensaje para URL
     const mensajeCodificado = encodeURIComponent(mensaje);
