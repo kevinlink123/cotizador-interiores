@@ -18,8 +18,7 @@ cotizador-interiores/
 ├── cotizador-interiores.php          # Archivo principal del plugin
 ├── README.md                          # Este archivo
 ├── includes/
-│   ├── class-cotizador-api.php       # API REST endpoints
-│   └── class-cotizador-db.php        # Gestión de base de datos
+│   └── class-cotizador-api.php       # API REST endpoints
 ├── admin/
 │   ├── class-cotizador-admin.php     # Panel de administración
 │   ├── js/
@@ -31,11 +30,9 @@ cotizador-interiores/
 │       └── cotizador.css             # Estilos personalizados
 ├── src/
 │   └── Cotizador.jsx                 # Componente React principal
-└── build/
-    └── cotizador.js                  # React compilado (generar)
 ```
 
-## Instalación
+## Compilacion
 
 ### 1. Preparar los archivos
 
@@ -45,65 +42,31 @@ Crea la carpeta del plugin con todos los archivos mostrados en la estructura.
 
 Necesitas compilar tu componente React. Tienes dos opciones:
 
-#### Opción A: Usando Vite (Recomendado)
+#### Opción A: Usando comandos de npm (Recomendado)
 
-1. En la carpeta del plugin, crea un `package.json`:
-```json
-{
-  "name": "cotizador-interiores",
-  "version": "1.0.0",
-  "scripts": {
-    "build": "vite build"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.0",
-    "vite": "^4.3.0"
-  },
-  "dependencies": {
-    "jspdf": "^2.5.1",
-    "lucide-react": "^0.263.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  }
-}
-```
+1. Abrir una terminal y pararse en la raiz del proyecto
 
-2. Crea `vite.config.js`:
-```javascript
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+Aqui deberas de correr cualquier comando npm correspondiente
 
-export default defineConfig({
-  plugins: [react()],
-  build: {
-    outDir: 'build',
-    rollupOptions: {
-      input: 'src/Cotizador.jsx',
-      output: {
-        entryFileNames: 'cotizador.js',
-        format: 'iife',
-        name: 'Cotizador'
-      },
-      external: ['react', 'react-dom', 'jspdf']
-    }
-  }
-})
-```
+2. Correr los comandos
 
-3. Ejecuta:
+En la terminal copia y pega estos comandos (EN ORDEN) en la terminal.
 ```bash
 npm install
 npm run build
 ```
+
+Esto generara un archivo "cotizador-interiores.zip" que podras cargar en wordpress desde la seccion de plugins.
 
 #### Opción B: Build manual simple
 Si prefieres, puedes usar el componente directamente sin compilar, cargando Babel en el navegador (solo para desarrollo).
 
 ### 3. Subir a WordPress
 
-1. Copia la carpeta `cotizador-interiores` completa a `wp-content/plugins/`
+1. Ubica el zip `cotizador-interiores.zip` (se crea en la raiz del proyecto luego de compilar) 
 2. Ve a WordPress Admin → Plugins
-3. Activa "Cotizador de Interiores"
+3. Subi el plugin
+4. Activa "Cotizador de Interiores"
 
 ### 4. Configurar
 
@@ -127,9 +90,11 @@ Si prefieres, puedes usar el componente directamente sin compilar, cargando Babe
 
 El plugin expone los siguientes endpoints:
 
-- `GET /wp-json/cotizador/v1/ambientes` - Obtener ambientes
+- `GET /wp-json/cotizador/v1/ambientes` - Obtener datos del servicio de renovacion completa
+- `GET /wp-json/cotizador/v1/interiorismo` - Obtener datos del servicio de interiorismo
 - `GET /wp-json/cotizador/v1/config` - Obtener configuración
-- `POST /wp-json/cotizador/v1/ambientes` - Actualizar ambientes (admin)
+- `POST /wp-json/cotizador/v1/ambientes` - Actualizar datos del servicio de renovacion completa (admin)
+- `POST /wp-json/cotizador/v1/interiorismo` - Actualizar datos del servicio de interiorismo (admin)
 - `POST /wp-json/cotizador/v1/config` - Actualizar config (admin)
 
 ## Soporte
