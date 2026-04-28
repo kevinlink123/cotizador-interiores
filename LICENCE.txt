@@ -1,0 +1,31 @@
+LICENCIA DE SOFTWARE PROPRIETARIO CON ACCESO AL CÓDIGO FUENTE
+
+Copyright (c) [2025] KEVIN NICOLAS YBARRA
+
+1. CONCESIÓN DE LICENCIA
+Se concede al Cliente Jessica Waisman Design una licencia mundial, perpetua, no exclusiva, no transferible y libre de regalías para:
+
+a) Usar el Software en entornos de producción y desarrollo.
+b) Acceder, ver y modificar el código fuente del Software.
+c) Crear modificaciones, correcciones de errores y extensiones del Software.
+d) Ejecutar versiones modificadas del Software para uso interno de la organización del Cliente.
+
+2. RESTRICCIONES
+El Cliente NO podrá:
+
+a) Distribuir, sublicenciar, vender, alquilar o transferir el Software o sus modificaciones a ningún tercero.
+b) Publicar el código fuente del Software en repositorios públicos.
+c) Usar el Software para ofrecer servicios comerciales a terceros (SaaS, time-sharing) sin autorización expresa.
+d) Eliminar o modificar los avisos de copyright o propiedad intelectual.
+
+3. PROPIEDAD
+El Licenciante KEVIN NICOLAS YBARRA conserva todos los derechos de propiedad intelectual sobre el Software original. Las modificaciones realizadas por el Cliente son de propiedad exclusiva del Cliente, pero el Cliente concede al Licenciante una licencia perpetua, libre de regalías para usar dichas modificaciones con fines de soporte (si el Cliente las proporciona voluntariamente).
+
+4. GARANTÍAS Y RESPONSABILIDAD
+El Software se proporciona "TAL CUAL" (AS-IS). El Licenciante no garantiza que el Software esté libre de errores ni será responsable por daños directos o indirectos derivados de su uso, incluyendo modificaciones realizadas por el Cliente.
+
+5. SOPORTE
+El Licenciante se compromete a proporcionar soporte para versiones modificadas del Software durante el periodo de 2 meses sin cargo adicional luego de entregado el software y aceptadas las clausulas de la licencia. Cualquier problema derivado de modificaciones del Cliente será facturado por separado a tarifas estándar.
+
+6. VIGENCIA
+Esta licencia es perpetua, pero puede ser terminada si el Cliente incumple cualquiera de las restricciones establecidas en la Sección 2.
